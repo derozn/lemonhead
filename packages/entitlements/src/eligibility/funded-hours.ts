@@ -17,6 +17,12 @@ export interface FundedHoursAssessment {
   startMonth: IsoMonth;
 }
 
+/** Both schemes, structurally present so callers never re-find them. */
+export interface FundedHoursAssessments {
+  workingParent: FundedHoursAssessment;
+  universal: FundedHoursAssessment;
+}
+
 function resolveStatus(
   blockers: EligibilityReason[],
   unknowns: EligibilityReason[],
@@ -37,7 +43,7 @@ export function assessFundedHours(
   profile: FamilyProfile,
   child: Child,
   params: FundedHoursParams,
-): FundedHoursAssessment[] {
+): FundedHoursAssessments {
   const [eligibilitySource] = params.sources;
   const blockers: EligibilityReason[] = [];
   const unknowns: EligibilityReason[] = [];
@@ -86,8 +92,8 @@ export function assessFundedHours(
       : [...blockers, ...unknowns];
 
   const universalSource = params.sources.at(-1);
-  return [
-    {
+  return {
+    workingParent: {
       scheme: 'working-parent',
       result: { status: workingParentStatus, reasons: workingParentReasons },
       hoursPerWeek: params.workingParent.hoursPerWeek,
@@ -97,7 +103,7 @@ export function assessFundedHours(
         params.termStartMonths,
       ),
     },
-    {
+    universal: {
       scheme: 'universal-3-to-4',
       result: {
         status: 'eligible',
@@ -115,5 +121,5 @@ export function assessFundedHours(
         params.termStartMonths,
       ),
     },
-  ];
+  };
 }

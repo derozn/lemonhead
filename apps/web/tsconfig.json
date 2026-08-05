@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2025", "DOM", "DOM.Iterable"],
+    "jsx": "preserve",
+    "plugins": [{ "name": "next" }]
+  },
+  "include": ["next-env.d.ts", "src", "middleware.ts", "next.config.ts", "vitest.config.ts"],
+  "exclude": ["node_modules", ".next"]
+}
