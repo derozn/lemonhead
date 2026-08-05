@@ -47,16 +47,38 @@ export type AgeBand = z.infer<typeof AgeBand>;
  * form and is not load-bearing for arithmetic). Hourly sessions have hours 1;
  * weekly sessions carry the hours included in one week.
  */
-export const SessionDef = z.object({
-  id: SessionId,
-  kind: z.enum(['full-day', 'half-day', 'hourly', 'weekly']),
-  label: z.string().min(1, 'Session labels cannot be empty'),
-  hours: z
-    .number()
-    .gt(0, 'A session must include some hours')
-    .lte(24, 'A session cannot exceed 24 hours')
-    .multipleOf(0.25, 'Session hours are in quarter-hour steps'),
-});
+export const SessionDef = z
+  .object({
+    id: SessionId,
+    kind: z.enum(['full-day', 'half-day', 'hourly', 'weekly']),
+    label: z.string().min(1, 'Session labels cannot be empty'),
+    hours: z
+      .number()
+      .gt(0, 'A session must include some hours')
+      .multipleOf(0.25, 'Session hours are in quarter-hour steps'),
+  })
+  .check((ctx) => {
+    // Weekly sessions span the week (up to 168h); everything else is a day.
+    const limit = ctx.value.kind === 'weekly' ? 168 : 24;
+    if (ctx.value.hours > limit) {
+      ctx.issues.push({
+        code: 'custom',
+        message: `A ${ctx.value.kind} session cannot exceed ${String(limit)} hours`,
+        path: ['hours'],
+        input: ctx.value,
+      });
+    }
+    // Hourly sessions are priced per single hour; the convention is load-bearing
+    // for the engine's rate arithmetic, so it is enforced rather than assumed.
+    if (ctx.value.kind === 'hourly' && ctx.value.hours !== 1) {
+      ctx.issues.push({
+        code: 'custom',
+        message: 'An hourly session is priced per single hour; set hours to 1',
+        path: ['hours'],
+        input: ctx.value,
+      });
+    }
+  });
 export type SessionDef = z.infer<typeof SessionDef>;
 
 export const PriceEntry = z.object({

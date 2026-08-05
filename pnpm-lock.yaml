@@ -32,6 +32,9 @@ importers:
       eslint-plugin-import-x:
         specifier: 4.17.1
         version: 4.17.1(@typescript-eslint/utils@8.66.0(eslint@10.8.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0))
+      fast-check:
+        specifier: 4.9.0
+        version: 4.9.0
       knip:
         specifier: 6.31.0
         version: 6.31.0
@@ -1366,6 +1369,10 @@ packages:
     resolution: {integrity: sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==}
     engines: {node: '>=12.0.0'}
 
+  fast-check@4.9.0:
+    resolution: {integrity: sha512-7ms6T7SybUev/PQITciI0yLM2pOSFy5zpG8Ty7tQofcVaQUvrMXp6CBwqF6fThLCLOrfBtuHAtwq6Yu4XPCllg==}
+    engines: {node: '>=12.17.0'}
+
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
@@ -1785,6 +1792,9 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+
+  pure-rand@8.4.2:
+    resolution: {integrity: sha512-vvuOGgcuPJAirlHvuQw1TrOiw7ptaIXXmIbNuiNOY6lNGJJH49PQ1Kj4nd783nPdQhQdicgOjVI2yI/9BD6/Ng==}
 
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
@@ -3310,6 +3320,10 @@ snapshots:
 
   expect-type@1.4.0: {}
 
+  fast-check@4.9.0:
+    dependencies:
+      pure-rand: 8.4.2
+
   fast-deep-equal@3.1.3: {}
 
   fast-equals@6.0.2: {}
@@ -3686,6 +3700,8 @@ snapshots:
   prettier@3.9.6: {}
 
   punycode@2.3.1: {}
+
+  pure-rand@8.4.2: {}
 
   require-from-string@2.0.2: {}
 
