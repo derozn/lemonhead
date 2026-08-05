@@ -22,4 +22,5 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm validate
+      - run: bash tools/ai/hooks.test.sh
       - run: pnpm build

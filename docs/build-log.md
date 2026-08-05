@@ -1,5 +1,11 @@
 # Build log
 
+The running narrative behind the code: what happened, what broke, what got decided, with the numbers. Raw material for the §10 write-up. One dated entry per meaningful event, newest last. The extraction experiment log is a separate document (`docs/experiment-log.md`) and starts with the first prompt experiment in Phase 3.
+
+## 2026-08-05 — The AI-dev framework, A2: deterministic gates
+
+The hooks that make the framework's promises mechanical: a SessionStart script orienting every session (branch, dirty count, last build-log entry, active tasks doc), a params-citation guard that rejects any edit to a rules params file lacking a gov.uk URL and retrieval date (verify-on-encode is now enforced, not urged), and a Stop-time reminder for uncommitted work. All are pipe-tested in CI (tools/ai/hooks.test.sh), and the tests immediately caught a harness bug: piping stdin into only the first segment of a hook command puts the jq assignment in a subshell and silently voids the test — every guard now receives stdin as Claude Code actually delivers it. docs/standards.md lands the deferred web conventions, with react-hooks and jsx-a11y lint now part of validate.
+
 ## 2026-08-05 — The AI-dev framework, PR A1: agents, skills, and governing docs
 
 Post-Phase-1, the owner commissioned an in-house AI-assisted development framework, patterned on a study of the SuperClaude Framework (400 files; verdict: ~20 carry the weight) and a survey of the UK gov data and MCP landscape (GOV.UK Content API is a no-auth structured goldmine with change history; the MCP niche for it is empty; no structured nursery fee data exists anywhere, which validates the whole product).
@@ -7,8 +13,6 @@ Post-Phase-1, the owner commissioned an in-house AI-assisted development framewo
 Design principle, one sentence: the LLM proposes; hooks, lint, and the engine dispose. SuperClaude's prose-only "Will Not" boundaries became real mechanisms here: the reviewer agent is read-only because it has no write tools; the policy-analyst cannot compute money because it has no execution tools and the engine owns arithmetic; params files without citations will be blocked by a hook (PR A2), not a plea.
 
 This PR lands four agents (reviewer, policy-analyst, engine-dev, web-dev), five flow skills (/task, /plan-gate, /verify-rule, /troubleshoot, /review), and the three governing docs (framework, rules-with-detection-greps, routing). Owner directives baked in: adopt-first for MCP servers and skills (context7, Lex, official fetch adopted; only govuk-mcp built, because the niche is verifiably empty), and external framework skills (the Vercel suite, turborepo, claude-api, dataviz) routed to rather than duplicated. Owner decisions: domain agents advisory-only; govuk-mcp pulled into Phase A; full five skills; split implementers.
-
-The running narrative behind the code: what happened, what broke, what got decided, with the numbers. Raw material for the §10 write-up. One dated entry per meaningful event, newest last. The extraction experiment log is a separate document (`docs/experiment-log.md`) and starts with the first prompt experiment in Phase 3.
 
 ## 2026-08-05 — Design review and the decisions that shaped Phase 1
 
