@@ -1,3 +1,7 @@
 packages:
   - apps/*
   - packages/*
+savePrefix: ''
+allowBuilds:
+  lefthook: true
+  unrs-resolver: true
