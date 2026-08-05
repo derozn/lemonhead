@@ -57,3 +57,26 @@ export function ageInMonths(dobMonth: IsoMonth, atMonth: IsoMonth): number {
 export function compareIsoMonths(a: IsoMonth, b: IsoMonth): number {
   return toMonthIndex(a) - toMonthIndex(b);
 }
+
+const ISO_DATE_PATTERN = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+
+/**
+ * A calendar day as 'YYYY-MM-DD'. Rule sets change on specific days (6 April),
+ * so the engine's asOfDate carries day precision. Lexicographic comparison of
+ * two IsoDates is chronological comparison.
+ */
+export const IsoDate = z
+  .string('Expected a date as a string in YYYY-MM-DD form')
+  .regex(ISO_DATE_PATTERN, 'Expected a date in YYYY-MM-DD form, e.g. 2026-04-06')
+  .brand<'IsoDate'>();
+export type IsoDate = z.infer<typeof IsoDate>;
+
+/** Convenience constructor: validates and brands a raw string as IsoDate. */
+export function isoDate(value: string): IsoDate {
+  return IsoDate.parse(value);
+}
+
+/** The calendar month an IsoDate falls in. */
+export function monthOf(date: IsoDate): IsoMonth {
+  return isoMonth(date.slice(0, 7));
+}

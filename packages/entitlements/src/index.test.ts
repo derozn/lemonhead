@@ -1,9 +1,13 @@
+import { isoDate } from '@lemonhead/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { zeroCost } from './index.ts';
+import * as entitlements from './index.ts';
 
-describe('workspace wiring', () => {
-  it('imports the schemas Pence brand across the package boundary', () => {
-    expect(zeroCost()).toBe(0);
+describe('package barrel', () => {
+  it('exposes the registry, params, and eligibility assessors', () => {
+    expect(entitlements.resolveRuleSet(isoDate('2026-08-05')).id).toContain('england');
+    expect(entitlements.assessFundedHours).toBeTypeOf('function');
+    expect(entitlements.assessTaxFreeChildcare).toBeTypeOf('function');
+    expect(entitlements.assessUcChildcare).toBeTypeOf('function');
   });
 });

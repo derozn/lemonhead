@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  IsoDate,
   IsoMonth,
   addMonths,
   ageInMonths,
   compareIsoMonths,
+  isoDate,
   isoMonth,
+  monthOf,
   monthsBetween,
 } from './iso-month.ts';
 
@@ -59,6 +62,15 @@ describe('month arithmetic', () => {
   it('computes a child age in whole months, negative before birth', () => {
     expect(ageInMonths(isoMonth('2024-11'), isoMonth('2026-08'))).toBe(21);
     expect(ageInMonths(isoMonth('2026-10'), isoMonth('2026-08'))).toBe(-2);
+  });
+
+  it('validates IsoDate and extracts its month', () => {
+    expect(isoDate('2026-04-06')).toBe('2026-04-06');
+    expect(monthOf(isoDate('2026-04-06'))).toBe('2026-04');
+    for (const bad of ['2026-04-32', '2026-04', '2026-4-06', '2026-13-01']) {
+      expect(IsoDate.safeParse(bad).success).toBe(false);
+    }
+    expect(isoDate('2026-04-06') <= isoDate('2026-04-07')).toBe(true);
   });
 
   it('compares months chronologically', () => {

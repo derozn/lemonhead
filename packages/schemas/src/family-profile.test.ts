@@ -15,7 +15,7 @@ const validInput = {
       attendance: { daysPerWeek: 3, hoursPerDay: 10, pattern: 'term-time-38' },
     },
   ],
-  parents: { count: 2, allMeetMinimumEarnings: 'yes', anyOver100k: 'no' },
+  parents: { count: 2, allInPaidWork: 'yes', allMeetMinimumEarnings: 'yes', anyOver100k: 'no' },
   universalCredit: { receives: false },
   jurisdiction: 'england',
 };
@@ -66,7 +66,6 @@ describe('FamilyProfile validation', () => {
         receives: true,
         netMonthlyEarnings: 1450.5,
         currentMonthlyAward: 89600,
-        earnsAboveBenefitCapThreshold: 'yes',
       },
     });
     expect(result.success).toBe(false);

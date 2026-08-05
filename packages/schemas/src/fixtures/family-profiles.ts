@@ -14,7 +14,7 @@ export const workingFamilyOneChild: FamilyProfile = FamilyProfile.parse({
       attendance: { daysPerWeek: 3, hoursPerDay: 10, pattern: 'term-time-38' },
     },
   ],
-  parents: { count: 2, allMeetMinimumEarnings: 'yes', anyOver100k: 'no' },
+  parents: { count: 2, allInPaidWork: 'yes', allMeetMinimumEarnings: 'yes', anyOver100k: 'no' },
   universalCredit: { receives: false },
   jurisdiction: 'england',
 });
@@ -36,12 +36,11 @@ export const ucHouseholdTwoChildren: FamilyProfile = FamilyProfile.parse({
       attendance: { daysPerWeek: 2, hoursPerDay: 6, pattern: 'stretched-all-year' },
     },
   ],
-  parents: { count: 1, allMeetMinimumEarnings: 'yes', anyOver100k: 'no' },
+  parents: { count: 1, allInPaidWork: 'yes', allMeetMinimumEarnings: 'yes', anyOver100k: 'no' },
   universalCredit: {
     receives: true,
     netMonthlyEarnings: 145000,
     currentMonthlyAward: 89600,
-    earnsAboveBenefitCapThreshold: 'yes',
   },
   jurisdiction: 'england',
 });
@@ -55,7 +54,12 @@ export const unsureEligibilityFamily: FamilyProfile = FamilyProfile.parse({
       attendance: { daysPerWeek: 4, hoursPerDay: 9, pattern: 'term-time-38' },
     },
   ],
-  parents: { count: 2, allMeetMinimumEarnings: 'unsure', anyOver100k: 'unsure' },
+  parents: {
+    count: 2,
+    allInPaidWork: 'unsure',
+    allMeetMinimumEarnings: 'unsure',
+    anyOver100k: 'unsure',
+  },
   universalCredit: { receives: false },
   jurisdiction: 'england',
 });
