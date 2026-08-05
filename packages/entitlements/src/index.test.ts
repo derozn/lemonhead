@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { dependsOnSchemas } from './index.ts';
+import { zeroCost } from './index.ts';
 
 describe('workspace wiring', () => {
-  it('imports across the schemas boundary', () => {
-    expect(dependsOnSchemas()).toBe('@lemonhead/entitlements depends on @lemonhead/schemas');
+  it('imports the schemas Pence brand across the package boundary', () => {
+    expect(zeroCost()).toBe(0);
   });
 });
