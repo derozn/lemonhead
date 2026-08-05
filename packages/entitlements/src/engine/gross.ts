@@ -35,7 +35,10 @@ export interface GrossLine {
     | 'unknown-flag'
     | 'funded-hours-deduction'
     | 'consumables-charge'
-    | 'funding-note';
+    | 'funding-note'
+    | 'tfc-top-up'
+    | 'uc-element'
+    | 'uc-signpost';
   childIndex: number | undefined;
   /** Negative for discounts. */
   amountPence: Pence;
