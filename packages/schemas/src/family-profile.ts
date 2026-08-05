@@ -35,6 +35,8 @@ export type Child = z.infer<typeof Child>;
  */
 export const Parents = z.object({
   count: z.union([z.literal(1), z.literal(2)], 'A household has 1 or 2 parents for eligibility'),
+  /** All parents in paid work (any hours) — the UC childcare element test. */
+  allInPaidWork: YesNoUnsure,
   /** Each parent earning at least 16 h/week at the minimum wage for their age. */
   allMeetMinimumEarnings: YesNoUnsure,
   /** Any parent over £100,000 adjusted net income (a cliff edge, per parent). */
@@ -52,12 +54,14 @@ export const UniversalCreditStatus = z.discriminatedUnion('receives', [
   z.object({ receives: z.literal(false) }),
   z.object({
     receives: z.literal(true),
-    /** Combined household net monthly earnings, in pence. */
+    /**
+     * Combined household net monthly earnings (after tax and NI), in pence.
+     * Also drives the benefit-cap exemption check — the £881/month threshold
+     * tests exactly this figure, so it is computed, never asked.
+     */
     netMonthlyEarnings: NonNegativePence,
     /** Current monthly UC award from the claimant's statement, in pence. */
     currentMonthlyAward: NonNegativePence,
-    /** Above the benefit-cap earnings-exemption threshold? Drives the cap check. */
-    earnsAboveBenefitCapThreshold: YesNoUnsure,
   }),
 ]);
 export type UniversalCreditStatus = z.infer<typeof UniversalCreditStatus>;

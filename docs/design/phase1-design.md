@@ -83,13 +83,15 @@ FamilyProfile
   children: Child[]                                    // array from day one; sibling discounts and
                                                        // per-child caps make single-child-only schemas a trap
   Child: { dobMonth: IsoMonth, disabled: boolean, attendance: { daysPerWeek, hoursPerDay, pattern } }
-  parents: { count: 1|2, allMeetMinimumEarnings: YesNoUnsure, anyOver100k: YesNoUnsure }
+  parents: { count: 1|2, allInPaidWork: YesNoUnsure,  // paid-work test for the UC childcare element
+             allMeetMinimumEarnings: YesNoUnsure, anyOver100k: YesNoUnsure }
   universalCredit:                                     // discriminated union (as built, task 2):
     | { receives: false }                              // a claimant household without its figures
     | { receives: true,                                //   is unrepresentable, per NFR6
         netMonthlyEarnings: Pence                      // held in memory, never persisted (NFR5 amendment)
-        currentMonthlyAward: Pence                     // from the claimant's UC statement
-        earnsAboveBenefitCapThreshold: YesNoUnsure }
+        currentMonthlyAward: Pence }                   // from the claimant's UC statement
+  // Benefit-cap exemption is computed from netMonthlyEarnings against the
+  // £881/month net threshold (gov.uk), so it is never asked (as built, task 4).
   jurisdiction: Jurisdiction
 ```
 

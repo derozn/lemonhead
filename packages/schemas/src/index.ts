@@ -7,11 +7,14 @@ export {
   pence,
 } from './primitives.ts';
 export {
+  IsoDate,
   IsoMonth,
   addMonths,
   ageInMonths,
   compareIsoMonths,
+  isoDate,
   isoMonth,
+  monthOf,
   monthsBetween,
 } from './iso-month.ts';
 export {
