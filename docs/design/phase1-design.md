@@ -84,16 +84,16 @@ FamilyProfile
                                                        // per-child caps make single-child-only schemas a trap
   Child: { dobMonth: IsoMonth, disabled: boolean, attendance: { daysPerWeek, hoursPerDay, pattern } }
   parents: { count: 1|2, allMeetMinimumEarnings: YesNoUnsure, anyOver100k: YesNoUnsure }
-  receivesUniversalCredit: boolean
-  ucDetails?: {                                        // asked only when receivesUniversalCredit;
-    netMonthlyEarnings: Pence                          // held in memory, never persisted (NFR5 amendment)
-    currentMonthlyAward: Pence                         // from the claimant's UC statement
-    earnsAboveBenefitCapThreshold: YesNoUnsure
-  }
+  universalCredit:                                     // discriminated union (as built, task 2):
+    | { receives: false }                              // a claimant household without its figures
+    | { receives: true,                                //   is unrepresentable, per NFR6
+        netMonthlyEarnings: Pence                      // held in memory, never persisted (NFR5 amendment)
+        currentMonthlyAward: Pence                     // from the claimant's UC statement
+        earnsAboveBenefitCapThreshold: YesNoUnsure }
   jurisdiction: Jurisdiction
 ```
 
-Eligibility inputs for funded hours and TFC are the coarse facts those schemes actually test (minimum-earnings test, £100k cliff), asked as questions a tired parent can answer, with `unsure` producing a signposted range rather than a refusal. Exact figures appear only on the UC path, via progressive disclosure: the two `ucDetails` money fields are asked only of households that say they receive UC, are processed entirely client-side, and live in memory only. On reload they are re-asked; the rest of the profile persists.
+Eligibility inputs for funded hours and TFC are the coarse facts those schemes actually test (minimum-earnings test, £100k cliff), asked as questions a tired parent can answer, with `unsure` producing a signposted range rather than a refusal. Exact figures appear only on the UC path, via progressive disclosure: the money fields exist only on the claimant branch of the union, are asked only of households that say they receive UC, are processed entirely client-side, and live in memory only. On reload they are re-asked; the rest of the profile persists.
 
 ### 3.4 `CostProjection`
 

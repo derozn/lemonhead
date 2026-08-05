@@ -60,7 +60,11 @@ importers:
         specifier: workspace:*
         version: link:../schemas
 
-  packages/schemas: {}
+  packages/schemas:
+    dependencies:
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
 
 packages:
 
