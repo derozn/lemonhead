@@ -1,0 +1,18 @@
+{
+  "name": "@lemonhead/govuk-mcp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server wrapping the GOV.UK Content and Search APIs for Lemonhead's verify-on-encode flow and rule watcher",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3"
+  }
+}

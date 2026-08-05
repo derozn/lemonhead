@@ -4,6 +4,10 @@
     ".": {},
     "packages/*": {
       "project": "src/**/*.ts"
+    },
+    "tools/*": {
+      "entry": "src/bin.ts",
+      "project": "src/**/*.ts"
     }
   }
 }

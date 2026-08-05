@@ -16,6 +16,7 @@ export default {
         'ci',
         'repo',
         'deps',
+        'govuk-mcp',
       ],
     ],
     'subject-case': [2, 'never', ['upper-case', 'pascal-case', 'start-case']],

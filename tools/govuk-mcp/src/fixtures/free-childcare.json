@@ -1,0 +1,30 @@
+{
+  "base_path": "/free-childcare-if-working",
+  "title": "Free Childcare for Working Parents",
+  "document_type": "guide",
+  "public_updated_at": "2026-04-06T09:00:00Z",
+  "details": {
+    "parts": [
+      {
+        "slug": "check-youre-eligible",
+        "title": "Check you're eligible",
+        "body": "<p>Over the next 3 months you and your partner (if you have one) must each expect to earn at least £2,643.68 if you're aged 21 or over.</p>"
+      },
+      {
+        "slug": "what-youll-get",
+        "title": "What you'll get",
+        "body": "<p>30 hours per week of free childcare for 38 weeks of the year.</p>"
+      }
+    ],
+    "change_history": [
+      {
+        "note": "Earnings thresholds updated for the 2026 to 2027 tax year.",
+        "public_timestamp": "2026-04-06T09:00:00Z"
+      },
+      {
+        "note": "Expanded to children aged 9 months and over.",
+        "public_timestamp": "2025-09-01T08:00:00Z"
+      }
+    ]
+  }
+}

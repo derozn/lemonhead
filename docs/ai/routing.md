@@ -16,9 +16,10 @@
 - **Choose when**: /verify-rule research; rule-change triage; anything needing gov.uk change history.
 - **NOT this**: legislation text → lex. Arbitrary non-gov pages → native WebFetch. If a mature external GOV.UK server appears, adopt it and retire this one (client adapter makes that a one-file change).
 
-### lex (adopted, i-dot-ai/lex, from PR A3)
+### lex (adoption approved, not yet wired)
 
-- **Purpose**: UK legislation and statutory instruments, semantically searchable; official government-built.
+- **Purpose**: UK legislation and statutory instruments, semantically searchable; official government-built (i-dot-ai/lex).
+- **Status**: requires self-hosting (Python service); no stable public MCP endpoint verified, so shipping a dead `.mcp.json` entry would help nobody. Wire it the first time /verify-rule actually needs SI text (setup steps in the repo's README); until then the policy-analyst notes "SI corroboration unavailable" rather than guessing.
 - **Choose when**: guidance prose is ambiguous and the SI text settles it; statutory backing for a params citation.
 - **NOT this**: the citation of record for params stays gov.uk; Lex corroborates.
 
