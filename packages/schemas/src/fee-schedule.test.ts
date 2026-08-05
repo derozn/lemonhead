@@ -171,6 +171,16 @@ describe('FeeSchedule cross-validation', () => {
     expect(messagesOf(absurdWeekly)).toContain('A weekly session cannot exceed 168 hours');
   });
 
+  it('requires hourly sessions to carry hours 1', () => {
+    const result = FeeSchedule.safeParse({
+      ...perHourConditionalFunding,
+      sessions: [{ id: 'hourly', kind: 'hourly', label: 'Per hour', hours: 2 }],
+    });
+    expect(messagesOf(result)).toContain(
+      'An hourly session is priced per single hour; set hours to 1',
+    );
+  });
+
   it('rejects session hours off the quarter-hour grid', () => {
     const result = FeeSchedule.safeParse({
       ...perHourConditionalFunding,

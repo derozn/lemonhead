@@ -1,20 +1,20 @@
 import { addMonths, ageInMonths } from '@lemonhead/schemas';
-import type { Attendance, FamilyProfile, FeeSchedule, IsoMonth } from '@lemonhead/schemas';
+import type { AgeBandId, Child, FamilyProfile, FeeSchedule, IsoMonth } from '@lemonhead/schemas';
 
 /**
  * A child's fee-band situation in one month. Carrying the band label and the
- * attendance here means downstream steps never index back into the profile or
- * schedule, so they cannot hit a missing entry.
+ * child record here means downstream steps never index back into the profile
+ * or schedule, so they cannot hit a missing entry.
  */
 export type ChildBandStatus =
-  | { status: 'in-band'; ageBandId: string; bandLabel: string }
+  | { status: 'in-band'; ageBandId: AgeBandId; bandLabel: string }
   | { status: 'not-born' }
   | { status: 'no-matching-band' };
 
 export interface ChildMonth {
   childIndex: number;
   ageMonths: number;
-  attendance: Attendance;
+  child: Child;
   band: ChildBandStatus;
 }
 
@@ -42,12 +42,10 @@ export function buildTimeline(
     const month = addMonths(startMonth, offset);
     months.push({
       month,
-      children: profile.children.map((child, childIndex) => ({
-        childIndex,
-        ageMonths: ageInMonths(child.dobMonth, month),
-        attendance: child.attendance,
-        band: bandFor(schedule, ageInMonths(child.dobMonth, month)),
-      })),
+      children: profile.children.map((child, childIndex) => {
+        const ageMonths = ageInMonths(child.dobMonth, month);
+        return { childIndex, ageMonths, child, band: bandFor(schedule, ageMonths) };
+      }),
     });
   }
   return months;

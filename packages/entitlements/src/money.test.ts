@@ -1,9 +1,7 @@
-import { Pence } from '@lemonhead/schemas';
+import { pence as p } from '@lemonhead/schemas';
 import { describe, expect, it } from 'vitest';
 
 import { applyPercent, multiplyRate, negate, proRata, sumPence } from './money.ts';
-
-const p = (value: number) => Pence.parse(value);
 
 describe('money helpers', () => {
   it('sums to whole pence and rejects fractional inputs at the boundary', () => {

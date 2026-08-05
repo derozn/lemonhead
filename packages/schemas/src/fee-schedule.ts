@@ -68,6 +68,16 @@ export const SessionDef = z
         input: ctx.value,
       });
     }
+    // Hourly sessions are priced per single hour; the convention is load-bearing
+    // for the engine's rate arithmetic, so it is enforced rather than assumed.
+    if (ctx.value.kind === 'hourly' && ctx.value.hours !== 1) {
+      ctx.issues.push({
+        code: 'custom',
+        message: 'An hourly session is priced per single hour; set hours to 1',
+        path: ['hours'],
+        input: ctx.value,
+      });
+    }
   });
 export type SessionDef = z.infer<typeof SessionDef>;
 

@@ -17,19 +17,22 @@ export function sumPence(values: readonly number[]): Pence {
   return Pence.parse(values.reduce((total, value) => total + value, 0));
 }
 
-/** amount × percent ÷ 100, rounded half-up once. */
-export function applyPercent(amount: Pence, percent: number): Pence {
-  return Pence.parse(Math.round((amount * percent) / 100));
-}
-
-/** rate × quantity, rounded half-up once. */
-export function multiplyRate(rate: Pence, quantity: number): Pence {
-  return Pence.parse(Math.round(rate * quantity));
-}
-
-/** amount × numerator ÷ denominator, rounded half-up once. */
+/**
+ * amount × numerator ÷ denominator, rounded half-up once. The one place the
+ * rounding contract is implemented; the other multipliers delegate here.
+ */
 export function proRata(amount: Pence, numerator: number, denominator: number): Pence {
   return Pence.parse(Math.round((amount * numerator) / denominator));
+}
+
+/** amount × percent ÷ 100, rounded half-up once. */
+export function applyPercent(amount: Pence, percent: number): Pence {
+  return proRata(amount, percent, 100);
+}
+
+/** rate × quantity, rounded half-up once (÷ 1 is exact). */
+export function multiplyRate(rate: Pence, quantity: number): Pence {
+  return proRata(rate, quantity, 1);
 }
 
 /** Negate an amount (discount and deduction lines are negative). */

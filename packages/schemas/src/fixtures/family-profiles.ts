@@ -5,6 +5,36 @@ import { FamilyProfile } from '../family-profile.ts';
  * fails fast. Shared by schema tests now and engine tests from task 4 on.
  */
 
+export interface ChildSpec {
+  dobMonth: string;
+  daysPerWeek?: number;
+  hoursPerDay?: number;
+  pattern?: string;
+  disabled?: boolean;
+}
+
+/**
+ * Parameterised builder for test families: two working parents, no UC,
+ * England, 3 term-time days of 10 hours unless a spec says otherwise. The
+ * single place the engine test suites get their default family shape from.
+ */
+export function familyOf(...children: ChildSpec[]): FamilyProfile {
+  return FamilyProfile.parse({
+    children: children.map((spec) => ({
+      dobMonth: spec.dobMonth,
+      disabled: spec.disabled ?? false,
+      attendance: {
+        daysPerWeek: spec.daysPerWeek ?? 3,
+        hoursPerDay: spec.hoursPerDay ?? 10,
+        pattern: spec.pattern ?? 'term-time-38',
+      },
+    })),
+    parents: { count: 2, allInPaidWork: 'yes', allMeetMinimumEarnings: 'yes', anyOver100k: 'no' },
+    universalCredit: { receives: false },
+    jurisdiction: 'england',
+  });
+}
+
 /** Two working parents, one toddler, three term-time days a week. */
 export const workingFamilyOneChild: FamilyProfile = FamilyProfile.parse({
   children: [

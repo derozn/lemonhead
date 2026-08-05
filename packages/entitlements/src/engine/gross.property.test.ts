@@ -1,6 +1,7 @@
-import { FamilyProfile, isoMonth } from '@lemonhead/schemas';
-import type { FeeSchedule } from '@lemonhead/schemas';
+import { isoMonth } from '@lemonhead/schemas';
+import type { FamilyProfile, FeeSchedule } from '@lemonhead/schemas';
 import {
+  familyOf,
   fundedRateDeduction,
   perDayHoursDeduction,
   perHourConditionalFunding,
@@ -11,11 +12,9 @@ import { describe, it } from 'vitest';
 import { calculateGross } from './gross.ts';
 import { buildTimeline } from './timeline.ts';
 
-const FIXTURES: FeeSchedule[] = [
-  perDayHoursDeduction,
-  perHourConditionalFunding,
-  fundedRateDeduction,
-];
+function grossFor(profile: FamilyProfile, schedule: FeeSchedule) {
+  return calculateGross(schedule, buildTimeline(profile, schedule, isoMonth('2026-08')));
+}
 
 const childArb = fc.record({
   dobMonth: fc.constantFrom('2026-10', '2026-01', '2024-06', '2023-03', '2022-01'),
@@ -24,40 +23,27 @@ const childArb = fc.record({
   pattern: fc.constantFrom('term-time-38', 'stretched-all-year'),
 });
 
-const profileArb = fc.array(childArb, { minLength: 1, maxLength: 3 }).map((children) =>
-  FamilyProfile.parse({
-    children: children.map((child) => ({
-      dobMonth: child.dobMonth,
-      disabled: false,
-      attendance: {
-        daysPerWeek: child.daysPerWeek,
-        hoursPerDay: child.hoursPerDay,
-        pattern: child.pattern,
-      },
-    })),
-    parents: { count: 2, allInPaidWork: 'yes', allMeetMinimumEarnings: 'yes', anyOver100k: 'no' },
-    universalCredit: { receives: false },
-    jurisdiction: 'england',
-  }),
-);
+const profileArb = fc
+  .array(childArb, { minLength: 1, maxLength: 3 })
+  .map((children) => familyOf(...children));
 
-const scheduleArb = fc.constantFrom(...FIXTURES);
+const scheduleArb = fc.constantFrom<FeeSchedule>(
+  perDayHoursDeduction,
+  perHourConditionalFunding,
+  fundedRateDeduction,
+);
 
 describe('gross calculation properties', () => {
   it('non-excluded lines sum exactly to each month total', () => {
     fc.assert(
       fc.property(profileArb, scheduleArb, (profile, schedule) => {
-        const months = calculateGross(
-          schedule,
-          buildTimeline(profile, schedule, isoMonth('2026-08')),
+        // Independent oracle on purpose: a plain reduce, not sumPence.
+        return grossFor(profile, schedule).every(
+          (month) =>
+            month.lines
+              .filter((line) => !line.excludedFromTotal)
+              .reduce((total, line) => total + line.amountPence, 0) === month.totalPence,
         );
-        for (const month of months) {
-          const summed = month.lines
-            .filter((line) => !line.excludedFromTotal)
-            .reduce((total, line) => total + line.amountPence, 0);
-          if (summed !== month.totalPence) return false;
-        }
-        return true;
       }),
     );
   });
@@ -65,11 +51,7 @@ describe('gross calculation properties', () => {
   it('gross fee lines and month totals are never negative', () => {
     fc.assert(
       fc.property(profileArb, scheduleArb, (profile, schedule) => {
-        const months = calculateGross(
-          schedule,
-          buildTimeline(profile, schedule, isoMonth('2026-08')),
-        );
-        return months.every(
+        return grossFor(profile, schedule).every(
           (month) =>
             month.totalPence >= 0 &&
             month.lines
@@ -88,29 +70,11 @@ describe('gross calculation properties', () => {
         fc.constantFrom('term-time-38', 'stretched-all-year'),
         scheduleArb,
         (daysPerWeek, hoursPerDay, pattern, schedule) => {
-          const totalsFor = (days: number) => {
-            const profile = FamilyProfile.parse({
-              children: [
-                {
-                  dobMonth: '2024-06',
-                  disabled: false,
-                  attendance: { daysPerWeek: days, hoursPerDay, pattern },
-                },
-              ],
-              parents: {
-                count: 2,
-                allInPaidWork: 'yes',
-                allMeetMinimumEarnings: 'yes',
-                anyOver100k: 'no',
-              },
-              universalCredit: { receives: false },
-              jurisdiction: 'england',
-            });
-            return calculateGross(
+          const totalsFor = (days: number) =>
+            grossFor(
+              familyOf({ dobMonth: '2024-06', daysPerWeek: days, hoursPerDay, pattern }),
               schedule,
-              buildTimeline(profile, schedule, isoMonth('2026-08')),
             ).map((month) => month.totalPence);
-          };
           const fewer = totalsFor(daysPerWeek);
           const more = totalsFor(daysPerWeek + 1);
           return fewer.every((total, index) => total <= (more[index] ?? Number.NEGATIVE_INFINITY));
