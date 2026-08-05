@@ -25,6 +25,7 @@ export type {
 export { applyFunding } from './engine/funding.ts';
 export { applyTfc } from './engine/tax-free-childcare.ts';
 export { applyUc } from './engine/universal-credit.ts';
+export { calculateProjection } from './engine/projection.ts';
 export { assessTaxFreeChildcare } from './eligibility/tax-free-childcare.ts';
 export type { TfcAssessment } from './eligibility/tax-free-childcare.ts';
 export { assessUcChildcare } from './eligibility/universal-credit.ts';

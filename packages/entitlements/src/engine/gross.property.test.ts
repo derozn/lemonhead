@@ -1,4 +1,4 @@
-import { isoMonth } from '@lemonhead/schemas';
+import { isoDate, isoMonth } from '@lemonhead/schemas';
 import type { FamilyProfile, FeeSchedule, YesNoUnsure } from '@lemonhead/schemas';
 import {
   familyOf,
@@ -13,6 +13,7 @@ import { fundedHoursEngland2026April } from '../rules/funded-hours/params/2026-0
 
 import { applyFunding } from './funding.ts';
 import { calculateGross } from './gross.ts';
+import { calculateProjection } from './projection.ts';
 import { buildTimeline } from './timeline.ts';
 
 function grossFor(profile: FamilyProfile, schedule: FeeSchedule) {
@@ -122,6 +123,32 @@ describe('funding properties', () => {
               return fee !== undefined && 0 - line.amountPence <= fee.amountPence + discounts;
             });
         });
+      }),
+    );
+  });
+});
+
+describe('projection properties', () => {
+  it('validates itself, sums per month and annually, and never exceeds gross', () => {
+    fc.assert(
+      fc.property(fundedProfileArb, scheduleArb, (profile, schedule) => {
+        const projection = calculateProjection(schedule, profile, {
+          asOfDate: isoDate('2026-08-05'),
+        });
+        const monthsOk = projection.months.every(
+          (month) =>
+            month.totalPence >= 0 &&
+            month.lines
+              .filter((line) => !line.excludedFromTotal)
+              .reduce((total, line) => total + line.amountPence, 0) === month.totalPence,
+        );
+        const monthSum = projection.months.reduce((total, month) => total + month.totalPence, 0);
+        const annualOk =
+          projection.annual.netPence === monthSum &&
+          projection.annual.netPence <= projection.annual.grossPence &&
+          projection.annual.grossPence - projection.annual.deductionsPence ===
+            projection.annual.netPence;
+        return monthsOk && annualOk && projection.ruleSetId.startsWith('england/');
       }),
     );
   });

@@ -25,6 +25,14 @@ export {
   UniversalCreditStatus,
 } from './family-profile.ts';
 export {
+  CostProjection,
+  ProjectionCitation,
+  ProjectionEligibility,
+  ProjectionLine,
+  ProjectionLineKind,
+  ProjectionSourceRef,
+} from './cost-projection.ts';
+export {
   AgeBand,
   AgeBandId,
   ConsumablesCharge,
