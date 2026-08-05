@@ -153,6 +153,24 @@ describe('FeeSchedule cross-validation', () => {
     }
   });
 
+  it('caps session hours by kind: 24 for day sessions, 168 for weekly', () => {
+    const daily = FeeSchedule.safeParse({
+      ...perHourConditionalFunding,
+      sessions: [{ id: 'hourly', kind: 'full-day', label: 'Long', hours: 25 }],
+    });
+    expect(messagesOf(daily)).toContain('A full-day session cannot exceed 24 hours');
+    const weekly = FeeSchedule.safeParse({
+      ...perHourConditionalFunding,
+      sessions: [{ id: 'hourly', kind: 'weekly', label: 'Week', hours: 50 }],
+    });
+    expect(weekly.success).toBe(true);
+    const absurdWeekly = FeeSchedule.safeParse({
+      ...perHourConditionalFunding,
+      sessions: [{ id: 'hourly', kind: 'weekly', label: 'Week', hours: 169 }],
+    });
+    expect(messagesOf(absurdWeekly)).toContain('A weekly session cannot exceed 168 hours');
+  });
+
   it('rejects session hours off the quarter-hour grid', () => {
     const result = FeeSchedule.safeParse({
       ...perHourConditionalFunding,

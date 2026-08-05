@@ -22,3 +22,8 @@ export { assessTaxFreeChildcare } from './eligibility/tax-free-childcare.ts';
 export type { TfcAssessment } from './eligibility/tax-free-childcare.ts';
 export { assessUcChildcare } from './eligibility/universal-credit.ts';
 export type { UcChildcareAssessment } from './eligibility/universal-credit.ts';
+export { applyPercent, multiplyRate, negate, proRata, sumPence } from './money.ts';
+export { buildTimeline, DEFAULT_HORIZON_MONTHS } from './engine/timeline.ts';
+export type { ChildBandStatus, ChildMonth, TimelineMonth } from './engine/timeline.ts';
+export { calculateGross, weeklyCostFor, WEEKS_PER_YEAR } from './engine/gross.ts';
+export type { GrossLine, MonthlyGross } from './engine/gross.ts';
