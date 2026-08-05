@@ -35,6 +35,7 @@ Boundaries and purity are lint-enforced in `eslint.config.mjs`; do not weaken th
 ## Workflow
 
 - One task from `docs/design/phase1-tasks.md` per PR. Conventional commits; scopes are enforced by commitlint (`schemas`, `entitlements`, `web`, `docs`, `ci`, `repo`, `deps`, plus later-phase package names).
+- `docs/build-log.md` gets an entry per meaningful event (bugs found, decisions made, numbers) in the same PR as the work; ADRs land in `docs/decisions/` when the decision is made, not at phase close-out. Both feed the final write-up (spec §10).
 - Lefthook runs eslint+prettier on staged files at commit, typecheck at push.
 - Tests land with the code they test. Show failures honestly.
 
