@@ -38,6 +38,16 @@ A test exposed a real schema bug: `SessionDef` capped hours at 24, which is wron
 
 A four-agent `/simplify` review then cut 259 lines against 238 added: shared test builders, branded ids kept through the engine, structured `assumptions[]`, the design's `unknown-flag` line kind, hourly-hours validation. Deliberately skipped: using `sumPence` in the lines-sum property (the plain reduce is the independent oracle) and all caching (12-month scale).
 
+## 2026-08-05 — Funding application (task 6)
+
+The owner's nursery-rules request from the design review is now enforced in code: minimum days per week, capped funded hours, term-time-only, and session restrictions each produce an explainable "funding not applied" line naming the rule, never a silently missing deduction. All three policy variants deduct differently (proportional at the booked rate, at the stated funded rate, or whole allocated sessions), and unknown policies flag rather than guess.
+
+Two things fell out of the maths. Deductions compute in annual quarter-hours divided by 12 once, so the stretched-offer conversion needs no separate formula: hours/week × weeks ÷ 12 equals annual ÷ 12 and the weeks cancel. And a property test forced a real rule decision: a full deduction plus a sibling discount could push a child's month negative, so deductions cap at the child's discounted fee.
+
+The coverage gate also forced an API fix: assessFundedHours returned an array callers had to .find() schemes out of, leaving provably-dead undefined branches; it now returns a structured { workingParent, universal } object.
+
+Satisfying hand-check: a 3-day family at Sunny Bank has exactly 1,140 attended hours a year, so the 30-hour offer funds the entire bill and the projection collapses to the consumables charge: £90.25 a month.
+
 ## 2026-08-05 — A refactor built, shown, and rejected
 
 The owner asked for a clean-architecture pass on `gross.ts` (nested loops, reduces, hashmap indexing). A full decomposition was built and shown before committing: a per-band pricing index, an orchestrator plus six single-purpose functions, reduces replaced with explicit loops, behaviour pinned byte-identical by the penny-exact tests. The owner judged it worse than the original and discarded it, deferring structural polish until after the PoC. Lesson recorded: sketch one function's before/after and get a verdict before converting a file. The episode is kept here because "what didn't work" is a section of the final write-up, and this is a legitimate entry: decomposition that satisfies checklists can still lose to a cohesive algorithm read top to bottom.

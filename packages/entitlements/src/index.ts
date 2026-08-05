@@ -17,7 +17,12 @@ export type {
   EligibilityStatus,
 } from './eligibility/types.ts';
 export { assessFundedHours } from './eligibility/funded-hours.ts';
-export type { FundedHoursAssessment, FundedHoursScheme } from './eligibility/funded-hours.ts';
+export type {
+  FundedHoursAssessment,
+  FundedHoursAssessments,
+  FundedHoursScheme,
+} from './eligibility/funded-hours.ts';
+export { applyFunding } from './engine/funding.ts';
 export { assessTaxFreeChildcare } from './eligibility/tax-free-childcare.ts';
 export type { TfcAssessment } from './eligibility/tax-free-childcare.ts';
 export { assessUcChildcare } from './eligibility/universal-credit.ts';

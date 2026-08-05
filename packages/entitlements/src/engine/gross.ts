@@ -11,6 +11,7 @@ import type {
 } from '@lemonhead/schemas';
 
 import { applyPercent, multiplyRate, negate, proRata, sumPence } from '../money.ts';
+import type { Citation } from '../rules/types.ts';
 
 import type { ChildMonth, TimelineMonth } from './timeline.ts';
 
@@ -20,14 +21,21 @@ import type { ChildMonth, TimelineMonth } from './timeline.ts';
  * Christmas is near-universal); this is an assumption, noted on every line it
  * produces, until per-nursery opening weeks are captured.
  */
-const WEEKS_PER_YEAR: Record<AttendancePattern, number> = {
+export const WEEKS_PER_YEAR: Record<AttendancePattern, number> = {
   'term-time-38': 38,
   'stretched-all-year': 51,
 };
 
 export interface GrossLine {
   /** 'unknown-flag' marks missing data (design doc §3.4), always £0. */
-  kind: 'gross-fees' | 'sibling-discount' | 'extra' | 'unknown-flag';
+  kind:
+    | 'gross-fees'
+    | 'sibling-discount'
+    | 'extra'
+    | 'unknown-flag'
+    | 'funded-hours-deduction'
+    | 'consumables-charge'
+    | 'funding-note';
   childIndex: number | undefined;
   /** Negative for discounts. */
   amountPence: Pence;
@@ -38,6 +46,8 @@ export interface GrossLine {
   excludedFromTotal: boolean;
   /** Modelling assumptions behind this line, stated to the user, one each. */
   assumptions: string[];
+  /** gov.uk citation when the line applies a rule (FR6); undefined for fee lines. */
+  citation: Citation | undefined;
 }
 
 export interface MonthlyGross {
@@ -233,6 +243,7 @@ export function calculateGross(schedule: FeeSchedule, timeline: TimelineMonth[])
           sessionId: undefined,
           ageBandId,
           excludedFromTotal: false,
+          citation: undefined,
           assumptions: [
             `The nursery has no priced session for ${bandLabel}; this month is shown as £0 until a price is added.`,
           ],
@@ -262,6 +273,7 @@ export function calculateGross(schedule: FeeSchedule, timeline: TimelineMonth[])
         sessionId: weekly.sessionId,
         ageBandId,
         excludedFromTotal: false,
+        citation: undefined,
         assumptions,
       });
       attending.push({ childMonth, ageBandId, feePence: monthly });
@@ -278,6 +290,7 @@ export function calculateGross(schedule: FeeSchedule, timeline: TimelineMonth[])
             sessionId: undefined,
             ageBandId: target.ageBandId,
             excludedFromTotal: false,
+            citation: undefined,
             assumptions: [],
           });
         }
@@ -300,6 +313,7 @@ export function calculateGross(schedule: FeeSchedule, timeline: TimelineMonth[])
           sessionId: undefined,
           ageBandId: undefined,
           excludedFromTotal: extra.refundable,
+          citation: undefined,
           assumptions: [],
         });
       }
