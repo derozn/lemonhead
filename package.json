@@ -1,5 +1,6 @@
 {
   "name": "lemonhead",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.6.0",
@@ -13,16 +14,29 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "knip": "knip",
+    "spell": "cspell --no-progress \"**\"",
+    "syncpack": "syncpack lint",
+    "syncpack:fix": "syncpack fix",
+    "validate": "pnpm syncpack && pnpm lint && pnpm format:check && pnpm spell && pnpm typecheck && pnpm coverage && pnpm knip",
+    "prepare": "lefthook install"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@vitest/coverage-v8": "^4.1.10",
-    "eslint": "^10.8.0",
-    "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.9.6",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.66.0",
-    "vitest": "^4.1.10"
+    "@commitlint/cli": "21.2.1",
+    "@commitlint/config-conventional": "21.2.0",
+    "@eslint/js": "10.0.1",
+    "@vitest/coverage-v8": "4.1.10",
+    "cspell": "10.0.1",
+    "eslint": "10.8.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-import-x": "4.17.1",
+    "knip": "6.31.0",
+    "lefthook": "2.1.10",
+    "prettier": "3.9.6",
+    "syncpack": "15.3.2",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.66.0",
+    "vitest": "4.1.10"
   }
 }

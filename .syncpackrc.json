@@ -1,0 +1,19 @@
+{
+  "semverGroups": [
+    {
+      "label": "exact versions everywhere",
+      "range": "",
+      "dependencies": ["**"],
+      "packages": ["**"]
+    }
+  ],
+  "versionGroups": [
+    {
+      "label": "internal packages via workspace protocol",
+      "dependencies": ["@lemonhead/**"],
+      "dependencyTypes": ["prod", "dev", "peer"],
+      "pinVersion": "workspace:*",
+      "packages": ["**"]
+    }
+  ]
+}
