@@ -21,3 +21,17 @@ export {
   Parents,
   UniversalCreditStatus,
 } from './family-profile.ts';
+export {
+  AgeBand,
+  AgeBandId,
+  ConsumablesCharge,
+  Extra,
+  FeeSchedule,
+  FundingConditions,
+  FundingPolicy,
+  NurseryInfo,
+  PriceEntry,
+  SessionDef,
+  SessionId,
+  SiblingDiscount,
+} from './fee-schedule.ts';

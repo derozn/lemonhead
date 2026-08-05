@@ -13,7 +13,8 @@ export const Attendance = z.object({
   hoursPerDay: z
     .number()
     .gt(0, 'Hours per day must be more than zero')
-    .lte(24, 'Hours per day cannot exceed 24'),
+    .lte(24, 'Hours per day cannot exceed 24')
+    .multipleOf(0.25, 'Hours are in quarter-hour steps, matching how nurseries bill'),
   pattern: AttendancePattern,
 });
 export type Attendance = z.infer<typeof Attendance>;
