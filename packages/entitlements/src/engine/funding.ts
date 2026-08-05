@@ -241,6 +241,34 @@ function childFundingLines(
   // discounts, so funding can never turn a child's month negative
   // (property-tested). discountTotal is negative or zero.
   const capped = Math.min(deduction, feeLine.amountPence + discountTotal);
+
+  const consumables = policy.consumablesCharge;
+  const consumablesAmount = consumables
+    ? consumables.per === 'day'
+      ? proRata(multiplyRate(consumables.amount, attendance.daysPerWeek), weeksPerYear, 12)
+      : consumables.per === 'week'
+        ? proRata(consumables.amount, weeksPerYear, 12)
+        : proRata(multiplyRate(consumables.amount, fundedAnnualQh / 4), 1, 12)
+    : Pence.parse(0);
+
+  // Found by the property suite in CI: at low attendance, a flat consumables
+  // charge can exceed what funding saves, making the family worse off. Real
+  // parents decline funding then, so the engine does too, and says why.
+  // This also keeps net ≤ gross true by construction.
+  if (capped <= consumablesAmount) {
+    return [
+      fundingNote(
+        childIndex,
+        'Funding not applied: the consumables charge would cost more than the funding saves',
+        [
+          ...conditionAssumptions,
+          `At your attendance, funding would save £${(capped / 100).toFixed(2)} a month but this nursery's consumables charge would add £${(consumablesAmount / 100).toFixed(2)}. Ask the nursery about unfunded attendance or reduced charges.`,
+        ],
+        citation,
+      ),
+    ];
+  }
+
   const lines: GrossLine[] = [
     {
       kind: 'funded-hours-deduction',
@@ -255,18 +283,11 @@ function childFundingLines(
     },
   ];
 
-  const consumables = policy.consumablesCharge;
   if (consumables) {
-    const amount =
-      consumables.per === 'day'
-        ? proRata(multiplyRate(consumables.amount, attendance.daysPerWeek), weeksPerYear, 12)
-        : consumables.per === 'week'
-          ? proRata(consumables.amount, weeksPerYear, 12)
-          : proRata(multiplyRate(consumables.amount, fundedAnnualQh / 4), 1, 12);
     lines.push({
       kind: 'consumables-charge',
       childIndex,
-      amountPence: amount,
+      amountPence: consumablesAmount,
       description: `Consumables charge on funded sessions (per ${consumables.per})`,
       sessionId: feeLine.sessionId,
       ageBandId: feeLine.ageBandId,

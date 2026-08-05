@@ -284,6 +284,25 @@ describe('needs-info answers', () => {
   });
 });
 
+describe('consumables exceeding the funding saving', () => {
+  it('withholds funding when consumables would cost more than it saves', () => {
+    // The CI property counterexample, pinned: 1 × 4h/week at The Orchard.
+    // Funding would save 570 × 152h / 12 = 7220 a month; the £27.50/week
+    // consumables charge would add 2750 × 38 / 12 = 8708. Worse off funded,
+    // so the engine declines and explains, and net stays ≤ gross.
+    const months = fundedMonths(
+      familyOf({ dobMonth: '2023-03', daysPerWeek: 1, hoursPerDay: 4 }),
+      fundedRateDeduction,
+    );
+    const note = months[0]?.lines.find((l) => l.kind === 'funding-note');
+    expect(note?.description).toContain('would cost more than the funding saves');
+    expect(note?.assumptions.join(' ')).toContain('£72.20');
+    expect(note?.assumptions.join(' ')).toContain('£87.08');
+    expect(months[0]?.lines.some((l) => l.kind === 'funded-hours-deduction')).toBe(false);
+    expect(months[0]?.totalPence).toBe(10624); // gross only: 3355 × 38 / 12
+  });
+});
+
 describe('consumables cadences', () => {
   it('charges per funded hour when the policy says so', () => {
     const s = testSchedule({
