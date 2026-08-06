@@ -48,6 +48,8 @@ describe('applyTfc', () => {
     expect(line?.amountPence).toBe(-11400);
     expect(line?.citation?.url).toContain('gov.uk');
     expect(line?.assumptions.join(' ')).toContain('calendar quarter');
+    expect(line?.description).toContain('{topUp} added for every {payIn}');
+    expect(line?.amounts).toEqual({ topUp: 200, payIn: 800, quarterlyCap: 50000 });
     expect(result[0]?.totalPence).toBe(45600); // 57000 - 11400
   });
 
@@ -92,7 +94,26 @@ describe('applyTfc', () => {
     const line = result[0]?.lines.find((l) => l.kind === 'tfc-top-up');
     expect(line?.amountPence).toBe(0);
     expect(line?.description).toContain('unconfirmed');
+    expect(line?.amounts).toBeUndefined(); // no reason mentions an amount
     expect(result[0]?.totalPence).toBe(57000);
+  });
+
+  it('carries the income ceiling on an unconfirmed note when the over-100k answer is unsure', () => {
+    const unsure: FamilyProfile = {
+      ...familyOf({ dobMonth: '2024-01' }),
+      parents: {
+        count: 2,
+        allInPaidWork: 'yes',
+        allMeetMinimumEarnings: 'yes',
+        anyOver100k: 'unsure',
+      },
+    };
+    const { timeline, months } = grossMonths(unsure, schedule());
+    const result = applyTfc(unsure, tfcParams, timeline, months);
+    const line = result[0]?.lines.find((l) => l.kind === 'tfc-top-up');
+    expect(line?.description).toContain('unconfirmed');
+    expect(line?.assumptions.join(' ')).toContain('{incomeCeiling}');
+    expect(line?.amounts).toEqual({ incomeCeiling: 10000000 });
   });
 
   it('adds nothing for UC households (mutual exclusivity)', () => {
@@ -138,6 +159,8 @@ describe('applyUc', () => {
     const line = result[0]?.lines.find((l) => l.kind === 'uc-element');
     expect(line?.amountPence).toBe(-151725);
     expect(line?.assumptions.join(' ')).not.toContain('benefit cap may reduce');
+    expect(line?.description).toContain('up to {monthlyCap} a month');
+    expect(line?.amounts).toEqual({ monthlyCap: 183616 });
     expect(result[0]?.totalPence).toBe(26775); // 178500 - 151725
   });
 
@@ -170,6 +193,9 @@ describe('applyUc', () => {
     const { months } = grossMonths(claimant, schedule());
     const line = applyUc(claimant, ucParams, months)[0]?.lines.find((l) => l.kind === 'uc-element');
     expect(line?.assumptions.join(' ')).toContain('benefit cap may reduce');
+    expect(line?.assumptions.join(' ')).toContain('below the {exemptionThreshold}/month');
+    // One child in this household, so the one-child cap applies.
+    expect(line?.amounts).toEqual({ monthlyCap: 107109, exemptionThreshold: 88100 });
   });
 
   it('signposts instead of computing when the current award is £0', () => {
@@ -186,6 +212,8 @@ describe('applyUc', () => {
     const line = result[0]?.lines.find((l) => l.kind === 'uc-signpost');
     expect(line?.description).toContain('not computed');
     expect(line?.assumptions.join(' ')).toContain('taper');
+    expect(line?.assumptions.join(' ')).toContain('Your current award is {currentAward}');
+    expect(line?.amounts).toEqual({ currentAward: 0 });
     expect(result.flatMap((m) => m.lines).some((l) => l.kind === 'uc-element')).toBe(false);
   });
 

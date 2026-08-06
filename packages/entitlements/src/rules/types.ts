@@ -56,8 +56,8 @@ export interface FundedHoursParams extends SchemeParamsBase {
 }
 
 export interface TaxFreeChildcareParams extends SchemeParamsBase {
-  /** "For every £8 you pay in, the government will top it up by £2." */
-  topUp: { parentPaysPence: number; governmentAddsPence: number };
+  /** "For every £8 you pay in, the government will top it up by £2" — stored in pence (800 and 200), like every money field here. */
+  topUp: { parentPaysPence: NonNegativePence; governmentAddsPence: NonNegativePence };
   quarterlyCapPence: NonNegativePence;
   disabledQuarterlyCapPence: NonNegativePence;
   /** Child age limits in whole years ("11 or younger; 16 or younger if disabled"). */

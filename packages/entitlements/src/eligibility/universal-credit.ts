@@ -81,7 +81,8 @@ export function assessUcChildcare(
       status: 'eligible',
       reasons: [
         {
-          message: `Universal Credit can cover ${String(params.childcare.percentCovered)}% of eligible childcare costs, up to £${(monthlyCapPence / 100).toFixed(2)} a month for this household.`,
+          message: `Universal Credit can cover ${String(params.childcare.percentCovered)}% of eligible childcare costs, up to {monthlyCap} a month for this household.`,
+          amounts: { monthlyCap: monthlyCapPence },
           ...(guidanceSource ? { citation: guidanceSource } : {}),
         },
       ],

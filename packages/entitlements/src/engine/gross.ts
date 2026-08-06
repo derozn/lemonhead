@@ -51,6 +51,11 @@ export interface GrossLine {
   assumptions: string[];
   /** gov.uk citation when the line applies a rule (FR6); undefined for fee lines. */
   citation: Citation | undefined;
+  /**
+   * Raw pence for every `{key}` placeholder in the description or
+   * assumptions; undefined when the text mentions no amount (ADR 0008).
+   */
+  amounts: Record<string, Pence> | undefined;
 }
 
 export interface MonthlyGross {
@@ -248,8 +253,9 @@ export function calculateGross(schedule: FeeSchedule, timeline: TimelineMonth[])
           excludedFromTotal: false,
           citation: undefined,
           assumptions: [
-            `The nursery has no priced session for ${bandLabel}; this month is shown as £0 until a price is added.`,
+            `The nursery has no priced session for ${bandLabel}; this month is shown as zero until a price is added.`,
           ],
+          amounts: undefined,
         });
         continue;
       }
@@ -278,6 +284,7 @@ export function calculateGross(schedule: FeeSchedule, timeline: TimelineMonth[])
         excludedFromTotal: false,
         citation: undefined,
         assumptions,
+        amounts: undefined,
       });
       attending.push({ childMonth, ageBandId, feePence: monthly });
     }
@@ -295,6 +302,7 @@ export function calculateGross(schedule: FeeSchedule, timeline: TimelineMonth[])
             excludedFromTotal: false,
             citation: undefined,
             assumptions: [],
+            amounts: undefined,
           });
         }
       }
@@ -318,6 +326,7 @@ export function calculateGross(schedule: FeeSchedule, timeline: TimelineMonth[])
           excludedFromTotal: extra.refundable,
           citation: undefined,
           assumptions: [],
+          amounts: undefined,
         });
       }
     }

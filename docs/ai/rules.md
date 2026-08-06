@@ -5,7 +5,7 @@ Conflict hierarchy: `docs/spec.md` > `CLAUDE.md` > `docs/standards.md` > anyone'
 ## 🔴 Money
 
 - ✅ `applyPercent(amount, 85)` in the engine. ❌ `month.total * 0.85` in a component, a script, or an agent's prose.
-- Detection: `grep -rnE "\w+Pence\w*\s*[*/]|[*/]\s*\w+Pence" apps/ packages/ --include="*.ts*" | grep -v "money.ts" | grep -v "\.test\."` — a name-based tripwire only; the gate is the type-aware ESLint no-Pence-arithmetic rule (Phase 1.5 money-boundary task, ADR 0008). As of 2026-08-06 this grep matches five known display-formatting sites (plus one it cannot see in `funding.ts`, whose variables lack the Pence suffix); expect empty once that task lands. The 2026-08 revisit replaced the original pattern here, which matched none of the real violations.
+- Detection: the gate is `lemonhead/no-pence-arithmetic` in `eslint.config.mjs` (type-aware, bans `*` `/` `%` on Pence-typed values everywhere except `packages/entitlements/src/money.ts` and `apps/web/src/lib/format.ts`; landed 2026-08-06 per ADR 0008). Quick name-based tripwire: `grep -rnE "\w+Pence\w*\s*[*/]|[*/]\s*\w+Pence" apps/ packages/ --include="*.ts*" | grep -v "money.ts" | grep -v "format.ts" | grep -v "\.test\."` (expect empty; it cannot see Pence values behind unbranded names, which is why the lint rule is the one that blocks). `+`/`-` are deliberately outside the ban: the property suites use plain reduces as oracles independent of `money.ts`.
 
 ## 🔴 Citations for government figures
 
@@ -20,7 +20,7 @@ Conflict hierarchy: `docs/spec.md` > `CLAUDE.md` > `docs/standards.md` > anyone'
 ## 🔴 UC figures are memory-only
 
 - ✅ `saveFamily` strips the claimant money fields; the storage test proves absence. ❌ Any persistence or network call that can see `netMonthlyEarnings`.
-- Detection: `grep -rn "netMonthlyEarnings\|currentMonthlyAward" apps/web/src/lib/storage.ts` (expect only the stripping comment/logic, never a write).
+- Detection: browser persistence APIs (`localStorage`, `sessionStorage`, `document.cookie`) are lint-banned across `apps/web/src` except `storage.ts`, the single choke point (widened 2026-08-06; `storage.test.ts` is also exempt because it reads raw localStorage on purpose to prove stripping without trusting `storage.ts`). Plus: `grep -rn "netMonthlyEarnings\|currentMonthlyAward" apps/web/src/lib/storage.ts` (expect only the stripping comment/logic, never a write).
 
 ## 🔴 Gates are not negotiable
 

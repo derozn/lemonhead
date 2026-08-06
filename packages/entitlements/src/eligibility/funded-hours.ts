@@ -65,13 +65,15 @@ export function assessFundedHours(
   if (profile.parents.anyOver100k === 'yes') {
     blockers.push({
       message:
-        'A parent expects adjusted net income over £100,000 this tax year, which ends working-parent eligibility (a cliff edge, tested per parent).',
+        'A parent expects adjusted net income over {incomeCeiling} this tax year, which ends working-parent eligibility (a cliff edge, tested per parent).',
+      amounts: { incomeCeiling: params.workingParent.maxAdjustedNetIncomePerParentPence },
       ...(eligibilitySource ? { citation: eligibilitySource } : {}),
     });
   } else if (profile.parents.anyOver100k === 'unsure') {
     unknowns.push({
       message:
-        'Whether any parent is over the £100,000 adjusted net income ceiling is not known; the working-parent offer is shown as unconfirmed.',
+        'Whether any parent is over the {incomeCeiling} adjusted net income ceiling is not known; the working-parent offer is shown as unconfirmed.',
+      amounts: { incomeCeiling: params.workingParent.maxAdjustedNetIncomePerParentPence },
       ...(eligibilitySource ? { citation: eligibilitySource } : {}),
     });
   }

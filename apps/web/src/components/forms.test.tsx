@@ -98,4 +98,19 @@ describe('ProjectionView', () => {
     expect(screen.getByText('UC childcare element eligible')).toBeInTheDocument();
     expect(screen.getByText(/Universal Credit childcare element: 85%/)).toBeInTheDocument();
   });
+
+  it('renders placeholder amounts as formatted pounds, never raw tokens', () => {
+    render(
+      <ProjectionView
+        schedule={perDayHoursDeduction}
+        profile={ucHouseholdTwoChildren}
+        asOfDate={isoDate('2026-08-05')}
+      />,
+    );
+    // The UC line's description carries {monthlyCap}; two children puts the
+    // 2026-04-06 cap at 183616 pence, so the formatted figure must appear.
+    expect(screen.getByText(/up to £1,836\.16 a month/)).toBeInTheDocument();
+    expect(screen.queryByText(/\{monthlyCap\}/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\{\w+\}/)).not.toBeInTheDocument();
+  });
 });

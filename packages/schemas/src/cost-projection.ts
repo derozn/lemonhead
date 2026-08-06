@@ -52,13 +52,24 @@ export const ProjectionLine = z.object({
   excludedFromTotal: z.boolean(),
   assumptions: z.array(z.string()),
   source: ProjectionSourceRef,
+  /**
+   * Raw pence for every money figure the description or assumptions mention,
+   * keyed by the placeholder name referenced from the text as `{key}`. The
+   * engine never composes a £ string; the UI formats these (ADR 0008).
+   */
+  amounts: z.record(z.string(), Pence).optional(),
 });
 export type ProjectionLine = z.infer<typeof ProjectionLine>;
 
 export const ProjectionEligibility = z.object({
   status: z.enum(['eligible', 'ineligible', 'needs-info']),
   reasons: z.array(
-    z.object({ message: z.string().min(1), citation: ProjectionCitation.optional() }),
+    z.object({
+      message: z.string().min(1),
+      citation: ProjectionCitation.optional(),
+      /** Pence for each `{key}` placeholder in the message (ADR 0008). */
+      amounts: z.record(z.string(), Pence).optional(),
+    }),
   ),
 });
 export type ProjectionEligibility = z.infer<typeof ProjectionEligibility>;
