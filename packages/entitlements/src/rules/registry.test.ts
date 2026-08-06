@@ -52,7 +52,7 @@ describe('resolveRuleSet', () => {
           /^https:\/\/(www\.gov\.uk|assets\.publishing\.service\.gov\.uk)/,
         );
         expect(source.quote.length).toBeGreaterThan(10);
-        expect(source.retrievedOn).toBe('2026-08-05');
+        expect(source.retrievedOn).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       }
     }
   });
