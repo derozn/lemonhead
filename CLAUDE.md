@@ -4,6 +4,8 @@ UK childcare cost calculator with AI fee-sheet extraction. Portfolio-grade: the 
 
 `docs/spec.md` is the source of truth. `docs/design/phase1-design.md` and `docs/design/phase1-tasks.md` govern the current phase. Decisions live in `docs/decisions/` as numbered ADRs.
 
+The AI-dev framework: `docs/ai/framework.md` (architecture), `docs/ai/rules.md` (tiered rules with detection greps), `docs/ai/routing.md` (which MCP server or external skill owns which work). Project flow skills: `/task` (one task-PR loop), `/plan-gate`, `/verify-rule` (mandatory before encoding any government figure), `/troubleshoot`, `/review`. Agents: reviewer (read-only), policy-analyst (advisory, cited, never computes), engine-dev, web-dev.
+
 ## Commands
 
 | Command                         | What it does                                                                                                |

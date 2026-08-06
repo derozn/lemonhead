@@ -2,7 +2,7 @@
 
 import { isoDate } from '@lemonhead/schemas';
 import type { FamilyProfile, FeeSchedule } from '@lemonhead/schemas';
-import { useEffect, useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 
 import { FamilyForm } from '../components/family-form.tsx';
 import { NurseryForm } from '../components/nursery-form.tsx';
@@ -12,7 +12,15 @@ import type { StoredFamily } from '../lib/storage.ts';
 
 type Step = 'nursery' | 'family' | 'projection';
 
+const emptySubscribe = () => () => {};
+
 export default function Home() {
+  // Hydration-safe: false on the server and the hydration render, true after.
+  const hydrated = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const [ready, setReady] = useState(false);
   const [step, setStep] = useState<Step>('nursery');
   const [schedule, setSchedule] = useState<FeeSchedule | null>(null);
@@ -20,11 +28,13 @@ export default function Home() {
   const [profile, setProfile] = useState<FamilyProfile | null>(null);
   const [asOfDate] = useState(() => isoDate(new Date().toISOString().slice(0, 10)));
 
-  useEffect(() => {
+  // Render-phase adjustment (the React-sanctioned alternative to
+  // set-state-in-effect): load persisted state once, after hydration.
+  if (hydrated && !ready) {
+    setReady(true);
     setSchedule(loadNursery());
     setStoredFamily(loadFamily());
-    setReady(true);
-  }, []);
+  }
 
   if (!ready) return null;
 

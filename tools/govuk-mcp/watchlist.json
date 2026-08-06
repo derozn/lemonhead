@@ -1,0 +1,62 @@
+{
+  "pages": [
+    {
+      "path": "free-childcare-if-working",
+      "label": "Free childcare for working parents (funded hours eligibility and earnings thresholds)",
+      "paramsFiles": ["packages/entitlements/src/rules/funded-hours/params/2026-04-06.england.ts"]
+    },
+    {
+      "path": "tax-free-childcare",
+      "label": "Tax-Free Childcare (top-up, caps, age limits)",
+      "paramsFiles": ["packages/entitlements/src/rules/tax-free-childcare/params/2026-04-06.uk.ts"]
+    },
+    {
+      "path": "guidance/universal-credit-childcare-costs",
+      "label": "UC childcare element (percentage and monthly caps)",
+      "paramsFiles": ["packages/entitlements/src/rules/universal-credit/params/2026-04-06.uk.ts"]
+    },
+    {
+      "path": "benefit-cap",
+      "label": "Benefit cap (earnings exemption threshold)",
+      "paramsFiles": ["packages/entitlements/src/rules/universal-credit/params/2026-04-06.uk.ts"]
+    },
+    {
+      "path": "national-minimum-wage-rates",
+      "label": "NMW rates (drive the quarterly earnings thresholds each April)",
+      "paramsFiles": [
+        "packages/entitlements/src/rules/funded-hours/params/2026-04-06.england.ts",
+        "packages/entitlements/src/rules/tax-free-childcare/params/2026-04-06.uk.ts"
+      ]
+    },
+    {
+      "path": "help-with-childcare-costs",
+      "label": "Help with childcare costs (discovery: scheme landscape changes)"
+    },
+    {
+      "path": "government/publications/early-years-funding-2025-to-2026",
+      "label": "DfE early years funding rates publication"
+    }
+  ],
+  "calendar": [
+    {
+      "month": 12,
+      "day": 15,
+      "note": "DfE announces next year's LA hourly funding rates mid-December: check the early-years funding publication."
+    },
+    {
+      "month": 3,
+      "day": 10,
+      "note": "Spring Budget season: watch for childcare funding announcements."
+    },
+    {
+      "month": 4,
+      "day": 1,
+      "note": "New tax year imminent: NMW-linked earnings thresholds and UC rates typically change 1/6 April. Run /verify-rule across all params."
+    },
+    {
+      "month": 9,
+      "day": 1,
+      "note": "September entitlement changes take effect today historically: verify funded-hours params."
+    }
+  ]
+}

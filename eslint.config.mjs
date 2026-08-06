@@ -1,6 +1,8 @@
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
 import importX from 'eslint-plugin-import-x';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
@@ -22,6 +24,15 @@ export default tseslint.config(
       ],
       'import-x/order': ['error', { 'newlines-between': 'always', alphabetize: { order: 'asc' } }],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+    },
+  },
+  {
+    // docs/standards.md: React hooks and accessibility rules for the web app.
+    files: ['apps/web/**/*.{ts,tsx}'],
+    plugins: { 'react-hooks': reactHooks, 'jsx-a11y': jsxA11y },
+    rules: {
+      ...reactHooks.configs['recommended-latest'].rules,
+      ...jsxA11y.flatConfigs.recommended.rules,
     },
   },
   {

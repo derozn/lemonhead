@@ -1,5 +1,17 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash tools/ai/session-context.sh",
+            "timeout": 10,
+            "statusMessage": "Loading project context"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -9,6 +21,30 @@
             "command": "cmd=$(jq -r '.tool_input.command // empty'); case \"$cmd\" in *'gh pr create'*) ;; *) exit 0 ;; esac; files=$(git diff main...HEAD --name-only 2>/dev/null) || exit 0; if printf '%s\\n' \"$files\" | grep -qx 'docs/build-log.md'; then exit 0; fi; if [ -n \"$files\" ] && ! printf '%s\\n' \"$files\" | grep -qv '^docs/'; then exit 0; fi; echo 'build-log guard: this branch does not update docs/build-log.md. Add an entry for this PR (see CLAUDE.md workflow), commit it, then re-run gh pr create.' >&2; exit 2",
             "timeout": 15,
             "statusMessage": "Checking build-log entry"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash tools/ai/params-citation-guard.sh",
+            "timeout": 10,
+            "statusMessage": "Checking params citations"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash tools/ai/stop-uncommitted.sh",
+            "timeout": 10
           }
         ]
       }
