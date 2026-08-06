@@ -233,16 +233,15 @@ export const FeeSchedule = z
     }
 
     const sorted = [...schedule.ageBands].sort((a, b) => a.fromMonths - b.fromMonths);
-    for (let i = 1; i < sorted.length; i += 1) {
-      const previous = sorted[i - 1];
-      const current = sorted[i];
-      if (!previous || !current) continue;
-      if (previous.toMonths === undefined || current.fromMonths < previous.toMonths) {
+    let previous: (typeof sorted)[number] | undefined;
+    for (const current of sorted) {
+      if (previous && (previous.toMonths === undefined || current.fromMonths < previous.toMonths)) {
         issue(
           `Age bands "${previous.id}" and "${current.id}" overlap; bands must not share months`,
           ['ageBands'],
         );
       }
+      previous = current;
     }
 
     const bandIds = new Set<string>(schedule.ageBands.map((band) => band.id));
@@ -256,13 +255,18 @@ export const FeeSchedule = z
         issue(`Price refers to unknown session "${price.sessionId}"`, ['prices', index]);
       }
     });
-    for (const pair of findDuplicates(
-      schedule.prices.map((price) => `${price.ageBandId} ${price.sessionId}`),
-    )) {
-      const [bandId, sessionId] = pair.split(' ');
-      issue(`More than one price for age band "${bandId ?? ''}" and session "${sessionId ?? ''}"`, [
-        'prices',
-      ]);
+    const seenPricePairs = new Set<string>();
+    const reportedPricePairs = new Set<string>();
+    for (const price of schedule.prices) {
+      const pair = `${price.ageBandId}\u0000${price.sessionId}`;
+      if (seenPricePairs.has(pair) && !reportedPricePairs.has(pair)) {
+        issue(
+          `More than one price for age band "${price.ageBandId}" and session "${price.sessionId}"`,
+          ['prices'],
+        );
+        reportedPricePairs.add(pair);
+      }
+      seenPricePairs.add(pair);
     }
 
     const policy = schedule.fundingPolicy;
