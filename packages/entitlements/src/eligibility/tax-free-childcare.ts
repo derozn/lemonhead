@@ -65,13 +65,15 @@ export function assessTaxFreeChildcare(
   if (profile.parents.anyOver100k === 'yes') {
     blockers.push({
       message:
-        'A parent expects adjusted net income over £100,000 this tax year, which ends Tax-Free Childcare eligibility.',
+        'A parent expects adjusted net income over {incomeCeiling} this tax year, which ends Tax-Free Childcare eligibility.',
+      amounts: { incomeCeiling: params.maxAdjustedNetIncomePerParentPence },
       ...(earningsSource ? { citation: earningsSource } : {}),
     });
   } else if (profile.parents.anyOver100k === 'unsure') {
     unknowns.push({
       message:
-        'Whether any parent is over the £100,000 adjusted net income ceiling is not known; Tax-Free Childcare is shown as unconfirmed.',
+        'Whether any parent is over the {incomeCeiling} adjusted net income ceiling is not known; Tax-Free Childcare is shown as unconfirmed.',
+      amounts: { incomeCeiling: params.maxAdjustedNetIncomePerParentPence },
       ...(earningsSource ? { citation: earningsSource } : {}),
     });
   }
@@ -87,7 +89,13 @@ export function assessTaxFreeChildcare(
       status: 'eligible',
       reasons: [
         {
-          message: `For every £8 you pay in, the government adds £2, up to £${String(quarterlyCapPence / 100)} every 3 months for this child.`,
+          message:
+            'For every {payIn} you pay in, the government adds {topUp}, up to {quarterlyCap} every 3 months for this child.',
+          amounts: {
+            payIn: params.topUp.parentPaysPence,
+            topUp: params.topUp.governmentAddsPence,
+            quarterlyCap: quarterlyCapPence,
+          },
           ...(tfcSource ? { citation: tfcSource } : {}),
         },
       ],

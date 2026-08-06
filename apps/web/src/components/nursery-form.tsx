@@ -3,7 +3,7 @@
 import { FeeSchedule } from '@lemonhead/schemas';
 import { useState } from 'react';
 
-import { pounds, toPence } from '../lib/format.ts';
+import { penceToInputString, pounds, toPence } from '../lib/format.ts';
 
 interface BandDraft {
   id: string;
@@ -73,7 +73,7 @@ function draftFrom(initial: FeeSchedule | null): Draft {
   }
   const prices: Record<string, string> = {};
   for (const price of initial.prices) {
-    prices[`${price.ageBandId}|${price.sessionId}`] = (price.rate / 100).toFixed(2);
+    prices[`${price.ageBandId}|${price.sessionId}`] = penceToInputString(price.rate);
   }
   const policy = initial.fundingPolicy;
   const offering = policy.kind !== 'not-offered' && policy.kind !== 'unknown' ? policy : undefined;
@@ -98,12 +98,13 @@ function draftFrom(initial: FeeSchedule | null): Draft {
     discountAppliesTo: discount?.appliesTo ?? 'oldest-child',
     extras: initial.extras.map((extra) => ({
       label: extra.label,
-      amount: (extra.amount / 100).toFixed(2),
+      amount: penceToInputString(extra.amount),
       per: extra.per,
       refundable: extra.refundable,
     })),
     policyKind: policy.kind,
-    fundedRate: policy.kind === 'funded-rate-deduction' ? (policy.fundedRate / 100).toFixed(2) : '',
+    fundedRate:
+      policy.kind === 'funded-rate-deduction' ? penceToInputString(policy.fundedRate) : '',
     fundedSessionIds: policy.kind === 'sessions-allocated' ? [...policy.fundedSessionIds] : [],
     minDaysPerWeek:
       offering?.conditions?.minDaysPerWeek === undefined
@@ -116,7 +117,7 @@ function draftFrom(initial: FeeSchedule | null): Draft {
     termTimeOnly: offering?.conditions?.termTimeOnly ?? false,
     conditionsUnknown: offering?.conditions?.conditionsUnknown ?? false,
     consumablesAmount: offering?.consumablesCharge
-      ? (offering.consumablesCharge.amount / 100).toFixed(2)
+      ? penceToInputString(offering.consumablesCharge.amount)
       : '',
     consumablesPer: offering?.consumablesCharge?.per ?? 'day',
     patterns: [...initial.attendancePatterns],

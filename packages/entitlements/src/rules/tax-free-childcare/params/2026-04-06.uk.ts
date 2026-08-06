@@ -11,7 +11,7 @@ const p = (value: number) => NonNegativePence.parse(value);
  */
 export const taxFreeChildcare2026April: TaxFreeChildcareParams = {
   effectiveFrom: isoDate('2026-04-06'),
-  topUp: { parentPaysPence: 8, governmentAddsPence: 2 },
+  topUp: { parentPaysPence: p(800), governmentAddsPence: p(200) },
   quarterlyCapPence: p(50000),
   disabledQuarterlyCapPence: p(100000),
   maxAgeYears: { standard: 11, disabled: 16 },

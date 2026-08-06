@@ -52,11 +52,13 @@ export function applyFunding(
         (line) => line.kind === 'gross-fees' && line.childIndex === childMonth.childIndex,
       );
       if (!feeLine) continue; // no priced fee this month (unknown-flag case)
-      const discountTotal = grossMonth.lines
-        .filter(
-          (line) => line.kind === 'sibling-discount' && line.childIndex === childMonth.childIndex,
-        )
-        .reduce((total, line) => total + line.amountPence, 0);
+      const discountTotal = sumPence(
+        grossMonth.lines
+          .filter(
+            (line) => line.kind === 'sibling-discount' && line.childIndex === childMonth.childIndex,
+          )
+          .map((line) => line.amountPence),
+      );
       fundingLines.push(
         ...childFundingLines(
           schedule,
@@ -89,6 +91,7 @@ function fundingNote(
   description: string,
   assumptions: string[],
   citation: Citation | undefined,
+  amounts?: Record<string, Pence>,
 ): GrossLine {
   return {
     kind: 'funding-note',
@@ -100,6 +103,7 @@ function fundingNote(
     excludedFromTotal: false,
     citation,
     assumptions,
+    amounts,
   };
 }
 
@@ -240,7 +244,7 @@ function childFundingLines(
   // A deduction never exceeds the fee it deducts from, after sibling
   // discounts, so funding can never turn a child's month negative
   // (property-tested). discountTotal is negative or zero.
-  const capped = Math.min(deduction, feeLine.amountPence + discountTotal);
+  const capped = Math.min(deduction, sumPence([feeLine.amountPence, discountTotal]));
 
   const consumables = policy.consumablesCharge;
   const consumablesAmount = consumables
@@ -262,9 +266,10 @@ function childFundingLines(
         'Funding not applied: the consumables charge would cost more than the funding saves',
         [
           ...conditionAssumptions,
-          `At your attendance, funding would save £${(capped / 100).toFixed(2)} a month but this nursery's consumables charge would add £${(consumablesAmount / 100).toFixed(2)}. Ask the nursery about unfunded attendance or reduced charges.`,
+          "At your attendance, funding would save {fundingSaving} a month but this nursery's consumables charge would add {consumablesCharge}. Ask the nursery about unfunded attendance or reduced charges.",
         ],
         citation,
+        { fundingSaving: Pence.parse(capped), consumablesCharge: consumablesAmount },
       ),
     ];
   }
@@ -280,6 +285,7 @@ function childFundingLines(
       excludedFromTotal: false,
       citation,
       assumptions: conditionAssumptions,
+      amounts: undefined,
     },
   ];
 
@@ -294,6 +300,7 @@ function childFundingLines(
       excludedFromTotal: false,
       citation: undefined,
       assumptions: [],
+      amounts: undefined,
     });
   }
 

@@ -55,11 +55,13 @@ describe('assessFundedHours: working-parent offer', () => {
     expect(workingParent.result.status).toBe(expected);
   });
 
-  it('an ineligible result names the blocking rule', () => {
+  it('an ineligible result names the blocking rule with the ceiling in pence', () => {
     const { workingParent } = assessFundedHours(withParents({ anyOver100k: 'yes' }), child, params);
-    expect(workingParent.result.reasons.map((reason) => reason.message).join(' ')).toContain(
-      '£100,000',
+    const blocking = workingParent.result.reasons.find((reason) =>
+      reason.message.includes('{incomeCeiling}'),
     );
+    expect(blocking?.message).toContain('adjusted net income over {incomeCeiling}');
+    expect(blocking?.amounts).toEqual({ incomeCeiling: 10000000 });
   });
 
   it('the unsure fixture family needs info rather than a guess', () => {

@@ -1,4 +1,4 @@
-import { CostProjection, monthOf, Pence } from '@lemonhead/schemas';
+import { CostProjection, monthOf } from '@lemonhead/schemas';
 import type {
   FamilyProfile,
   FeeSchedule,
@@ -10,7 +10,7 @@ import type {
 import { assessFundedHours } from '../eligibility/funded-hours.ts';
 import { assessTaxFreeChildcare } from '../eligibility/tax-free-childcare.ts';
 import { assessUcChildcare } from '../eligibility/universal-credit.ts';
-import { sumPence } from '../money.ts';
+import { negate, sumPence } from '../money.ts';
 import { resolveRuleSet } from '../rules/registry.ts';
 
 import { applyFunding } from './funding.ts';
@@ -42,6 +42,7 @@ function toProjectionLine(line: GrossLine): ProjectionLine {
     excludedFromTotal: line.excludedFromTotal,
     assumptions: line.assumptions,
     source: toSourceRef(line),
+    ...(line.amounts !== undefined ? { amounts: line.amounts } : {}),
   };
 }
 
@@ -78,7 +79,7 @@ export function calculateProjection(
     })),
     annual: {
       grossPence: grossAnnual,
-      deductionsPence: Pence.parse(grossAnnual - netAnnual),
+      deductionsPence: sumPence([grossAnnual, negate(netAnnual)]),
       netPence: netAnnual,
     },
     eligibility: {

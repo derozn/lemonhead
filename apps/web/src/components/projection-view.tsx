@@ -4,7 +4,7 @@ import { calculateProjection } from '@lemonhead/entitlements';
 import type { FamilyProfile, FeeSchedule, IsoDate, ProjectionLine } from '@lemonhead/schemas';
 import { useMemo, useState } from 'react';
 
-import { pounds } from '../lib/format.ts';
+import { pounds, renderAmounts } from '../lib/format.ts';
 
 function Source({ line }: { line: ProjectionLine }) {
   if (line.source.type === 'rule') {
@@ -104,11 +104,11 @@ export function ProjectionView({
               {month.lines.map((line, index) => (
                 <tr key={index}>
                   <td>
-                    {line.description}
+                    {renderAmounts(line.description, line.amounts)}
                     {line.excludedFromTotal && ' (not counted in the total)'}
                     {line.assumptions.map((assumption, aIndex) => (
                       <p key={aIndex} className="assumption">
-                        {assumption}
+                        {renderAmounts(assumption, line.amounts)}
                       </p>
                     ))}
                     <div>

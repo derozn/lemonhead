@@ -296,8 +296,9 @@ describe('consumables exceeding the funding saving', () => {
     );
     const note = months[0]?.lines.find((l) => l.kind === 'funding-note');
     expect(note?.description).toContain('would cost more than the funding saves');
-    expect(note?.assumptions.join(' ')).toContain('£72.20');
-    expect(note?.assumptions.join(' ')).toContain('£87.08');
+    expect(note?.assumptions.join(' ')).toContain('funding would save {fundingSaving} a month');
+    expect(note?.assumptions.join(' ')).toContain('would add {consumablesCharge}');
+    expect(note?.amounts).toEqual({ fundingSaving: 7220, consumablesCharge: 8708 });
     expect(months[0]?.lines.some((l) => l.kind === 'funded-hours-deduction')).toBe(false);
     expect(months[0]?.totalPence).toBe(10624); // gross only: 3355 × 38 / 12
   });
@@ -349,6 +350,7 @@ describe('defensive paths and invariants', () => {
             excludedFromTotal: false,
             citation: undefined,
             assumptions: [],
+            amounts: undefined,
           },
         ],
         totalPence: Pence.parse(50000),

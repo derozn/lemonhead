@@ -25,7 +25,7 @@ export function applyTfc(
 ): MonthlyGross[] {
   const [tfcSource] = params.sources;
   /** childIndex → quarter key → top-up already used, in pence. */
-  const usedByQuarter = new Map<string, number>();
+  const usedByQuarter = new Map<string, Pence>();
 
   return months.map((month, monthIndex) => {
     const timelineMonth = timeline[monthIndex];
@@ -35,14 +35,20 @@ export function applyTfc(
     const tfcLines: GrossLine[] = [];
 
     for (const childMonth of timelineMonth.children) {
-      const childCost = month.lines
-        .filter((line) => line.childIndex === childMonth.childIndex && !line.excludedFromTotal)
-        .reduce((total, line) => total + line.amountPence, 0);
+      const childCost = sumPence(
+        month.lines
+          .filter((line) => line.childIndex === childMonth.childIndex && !line.excludedFromTotal)
+          .map((line) => line.amountPence),
+      );
       if (childCost <= 0) continue;
 
       const assessment = assessTaxFreeChildcare(profile, childMonth.child, params, month.month);
       if (assessment.result.status === 'ineligible') continue;
       if (assessment.result.status === 'needs-info') {
+        const reasonAmounts: Record<string, Pence> = {};
+        for (const reason of assessment.result.reasons) {
+          Object.assign(reasonAmounts, reason.amounts);
+        }
         tfcLines.push({
           kind: 'tfc-top-up',
           childIndex: childMonth.childIndex,
@@ -53,22 +59,24 @@ export function applyTfc(
           excludedFromTotal: false,
           citation: tfcSource,
           assumptions: assessment.result.reasons.map((reason) => reason.message),
+          amounts: Object.keys(reasonAmounts).length > 0 ? reasonAmounts : undefined,
         });
         continue;
       }
 
       const quarterKey = `${String(childMonth.childIndex)}:${month.month.slice(0, 4)}q${String(Math.floor((Number(month.month.slice(5, 7)) - 1) / 3))}`;
-      const used = usedByQuarter.get(quarterKey) ?? 0;
-      const remaining = assessment.quarterlyCapPence - used;
-      const topUp = Math.min(applyPercent(Pence.parse(childCost), 20), remaining);
+      const used = usedByQuarter.get(quarterKey) ?? Pence.parse(0);
+      const remaining = sumPence([assessment.quarterlyCapPence, negate(used)]);
+      const topUp = Math.min(applyPercent(childCost, 20), remaining);
       if (topUp <= 0) continue;
-      usedByQuarter.set(quarterKey, used + topUp);
+      usedByQuarter.set(quarterKey, sumPence([used, topUp]));
 
       tfcLines.push({
         kind: 'tfc-top-up',
         childIndex: childMonth.childIndex,
         amountPence: negate(Pence.parse(topUp)),
-        description: `Tax-Free Childcare top-up: £2 added for every £8 you pay in, up to £${String(assessment.quarterlyCapPence / 100)} every 3 months for this child`,
+        description:
+          'Tax-Free Childcare top-up: {topUp} added for every {payIn} you pay in, up to {quarterlyCap} every 3 months for this child',
         sessionId: undefined,
         ageBandId: undefined,
         excludedFromTotal: false,
@@ -76,6 +84,11 @@ export function applyTfc(
         assumptions: [
           'Assumes these costs are paid through a Tax-Free Childcare account. The quarterly cap is applied per calendar quarter, an approximation of your entitlement periods, which run from when the account was opened.',
         ],
+        amounts: {
+          topUp: params.topUp.governmentAddsPence,
+          payIn: params.topUp.parentPaysPence,
+          quarterlyCap: assessment.quarterlyCapPence,
+        },
       });
     }
 

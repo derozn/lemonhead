@@ -5,6 +5,8 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
+import noPenceArithmetic from './tools/eslint/no-pence-arithmetic.mjs';
+
 export default tseslint.config(
   { ignores: ['**/node_modules', '**/dist', '**/.next', '**/coverage'] },
   js.configs.recommended,
@@ -85,6 +87,62 @@ export default tseslint.config(
         {
           selector: "CallExpression[callee.object.name='Math'][callee.property.name='random']",
           message: 'The engine is deterministic: no randomness (design doc §4.4).',
+        },
+      ],
+    },
+  },
+  {
+    // ADR 0008: the engine emits pence, the UI formats pounds. Pence scaling
+    // happens only in money.ts; pounds rendering only in the web formatter.
+    files: ['**/*.{ts,tsx}'],
+    ignores: ['packages/entitlements/src/money.ts', 'apps/web/src/lib/format.ts'],
+    plugins: { lemonhead: { rules: { 'no-pence-arithmetic': noPenceArithmetic } } },
+    rules: { 'lemonhead/no-pence-arithmetic': 'error' },
+  },
+  {
+    // ADR 0007: UC money figures are memory-only. src/lib/storage.ts is the
+    // single persistence choke point (it strips them); its test reads the raw
+    // store on purpose, to prove the stripping without trusting storage.ts.
+    files: ['apps/web/src/**/*.{ts,tsx}'],
+    ignores: ['apps/web/src/lib/storage.ts', 'apps/web/src/lib/storage.test.ts'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        {
+          name: 'localStorage',
+          message: 'Persist through src/lib/storage.ts only (ADR 0007: UC figures never persist).',
+        },
+        {
+          name: 'sessionStorage',
+          message: 'Persist through src/lib/storage.ts only (ADR 0007: UC figures never persist).',
+        },
+      ],
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'window',
+          property: 'localStorage',
+          message: 'Persist through src/lib/storage.ts only (ADR 0007: UC figures never persist).',
+        },
+        {
+          object: 'window',
+          property: 'sessionStorage',
+          message: 'Persist through src/lib/storage.ts only (ADR 0007: UC figures never persist).',
+        },
+        {
+          object: 'globalThis',
+          property: 'localStorage',
+          message: 'Persist through src/lib/storage.ts only (ADR 0007: UC figures never persist).',
+        },
+        {
+          object: 'globalThis',
+          property: 'sessionStorage',
+          message: 'Persist through src/lib/storage.ts only (ADR 0007: UC figures never persist).',
+        },
+        {
+          object: 'document',
+          property: 'cookie',
+          message: 'Persist through src/lib/storage.ts only (ADR 0007: UC figures never persist).',
         },
       ],
     },

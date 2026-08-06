@@ -24,7 +24,11 @@ export function applyUc(
   const assessment = assessUcChildcare(profile, params);
   const [guidanceSource] = params.sources;
 
-  const signpostOnly = (description: string, assumptions: string[]): MonthlyGross[] =>
+  const signpostOnly = (
+    description: string,
+    assumptions: string[],
+    amounts?: Record<string, Pence>,
+  ): MonthlyGross[] =>
     months.map((month, monthIndex) => {
       if (monthIndex > 0) return month;
       const line: GrossLine = {
@@ -37,6 +41,7 @@ export function applyUc(
         excludedFromTotal: false,
         citation: guidanceSource,
         assumptions,
+        amounts,
       };
       return { ...month, lines: [...month.lines, line] };
     });
@@ -52,9 +57,13 @@ export function applyUc(
 
   const { netMonthlyEarnings, currentMonthlyAward } = profile.universalCredit;
   if (currentMonthlyAward === 0) {
-    return signpostOnly('Universal Credit childcare element not computed', [
-      'Your current award is £0, so the earnings taper may absorb some or all of the childcare element. Report your childcare costs to UC and check your statement rather than relying on an estimate here.',
-    ]);
+    return signpostOnly(
+      'Universal Credit childcare element not computed',
+      [
+        'Your current award is {currentAward}, so the earnings taper may absorb some or all of the childcare element. Report your childcare costs to UC and check your statement rather than relying on an estimate here.',
+      ],
+      { currentAward: currentMonthlyAward },
+    );
   }
 
   const capExempt = netMonthlyEarnings >= params.benefitCap.earningsExemptionMonthlyNetPence;
@@ -69,7 +78,7 @@ export function applyUc(
       kind: 'uc-element',
       childIndex: undefined,
       amountPence: negate(Pence.parse(element)),
-      description: `Universal Credit childcare element: ${String(params.childcare.percentCovered)}% of your childcare costs, up to £${(assessment.monthlyCapPence / 100).toFixed(2)} a month`,
+      description: `Universal Credit childcare element: ${String(params.childcare.percentCovered)}% of your childcare costs, up to {monthlyCap} a month`,
       sessionId: undefined,
       ageBandId: undefined,
       excludedFromTotal: false,
@@ -80,8 +89,14 @@ export function applyUc(
           ]
         : [
             'You pay the nursery first and UC reimburses you the following assessment period; the monthly figure here assumes steady reporting.',
-            `Your stated earnings are below the £${(params.benefitCap.earningsExemptionMonthlyNetPence / 100).toFixed(2)}/month benefit-cap exemption threshold, so the benefit cap may reduce this amount. Check your UC statement.`,
+            'Your stated earnings are below the {exemptionThreshold}/month benefit-cap exemption threshold, so the benefit cap may reduce this amount. Check your UC statement.',
           ],
+      amounts: capExempt
+        ? { monthlyCap: assessment.monthlyCapPence }
+        : {
+            monthlyCap: assessment.monthlyCapPence,
+            exemptionThreshold: params.benefitCap.earningsExemptionMonthlyNetPence,
+          },
     };
     const lines = [...month.lines, line];
     return {

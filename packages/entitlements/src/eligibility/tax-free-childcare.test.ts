@@ -30,7 +30,14 @@ describe('assessTaxFreeChildcare', () => {
     const assessment = assessTaxFreeChildcare(workingFamilyOneChild, child, params, AT);
     expect(assessment.result.status).toBe('eligible');
     expect(assessment.quarterlyCapPence).toBe(50000);
-    expect(assessment.result.reasons[0]?.message).toContain('£8');
+    expect(assessment.result.reasons[0]?.message).toContain(
+      'For every {payIn} you pay in, the government adds {topUp}',
+    );
+    expect(assessment.result.reasons[0]?.amounts).toEqual({
+      payIn: 800,
+      topUp: 200,
+      quarterlyCap: 50000,
+    });
     expect(assessment.result.reasons[0]?.citation?.url).toContain('gov.uk');
   });
 

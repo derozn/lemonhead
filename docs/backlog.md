@@ -40,10 +40,11 @@ The single register of everything consciously parked, deferred, or pending. Writ
 
 ## Not yet started
 
-| Item                     | Notes                                                                      |
-| ------------------------ | -------------------------------------------------------------------------- |
-| `docs/experiment-log.md` | Deliberately starts with the first Phase 3 extraction experiment           |
-| Framework dogfood report | After Phase 2 runs through /task a few times: what worked, what's ceremony |
+| Item                     | Notes                                                                                                                                                                                                                                                                   |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/experiment-log.md` | Deliberately starts with the first Phase 3 extraction experiment                                                                                                                                                                                                        |
+| Framework dogfood report | After Phase 2 runs through /task a few times: what worked, what's ceremony                                                                                                                                                                                              |
+| Eligibility reasons UI   | Projection view shows status chips only; reason messages (with their `amounts` placeholders, wired 2026-08-06) have no web call site yet. Render them through `renderAmounts` next to each chip. Natural home: Phase 4 review UI, or earlier if the chips confuse users |
 
 ## Dropped
 
