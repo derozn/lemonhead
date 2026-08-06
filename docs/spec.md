@@ -1,6 +1,6 @@
 # Spec: Lemonhead — AI-Powered UK Childcare Cost Calculator
 
-**Status:** Draft v1.1 — for agent implementation
+**Status:** v1.2 — amended 2026-08-06 after the full project revisit (verdict record: `docs/revisit-2026-08.md`)
 **Owner:** Nick
 **Type:** Portfolio / revenue side project
 **Workflow:** Requirements → Design → Planning → Implementation → Verification → Review (follow phases in order; do not begin Implementation until Planning output is approved by the owner)
@@ -187,11 +187,13 @@ packages/telemetry        # OTel setup shared across apps
 
 **Phase 1 — Deterministic core (no AI):** `packages/schemas` + `packages/entitlements` with full test coverage; web app with _manual_ fee entry → projection with itemised, explainable output. _Ships as a useful calculator on its own._
 
-**Phase 2 — Eval scaffolding:** collect + label golden set; build eval runner against a stub extractor. Baseline: 0%.
+**Phase 1.5 — Revisit hardening (added 2026-08-06):** money display boundary per ADR 0008 (engine emits pence, UI formats pounds) with type-aware lint enforcement; UC memory-only enforcement widened beyond `storage.ts`; schemas coverage threshold; `next-env.d.ts` tracked-input fix; `gross.ts` sketch-first pass (verdict-gated); verbatim citation quotes in params files; comparison view (FR4, moved here from Phase 4); Vercel project link + `PREVIEW_PASSWORD` (owner). _Ships the comparison feature and closes the revisit audit findings._
+
+**Phase 2 — Eval scaffolding:** collect + label golden set; build eval runner against a stub extractor. Baseline: 0%. (Amended 2026-08-06: also builds the framework tooling ahead of need — /collect-sheet skill + fee-sheet-analyst agent for collection, /experiment skill + experiment-log hook ready for Phase 3.)
 
 **Phase 3 — Extraction pipeline:** preprocess → triage → extract → validate/repair; wire evals; iterate prompts/routing until NFR1 met on held-out split. Experiment log from day one.
 
-**Phase 4 — Product integration:** upload flow, streaming progress, confidence-flagged review UI, source-region highlighting, comparison view.
+**Phase 4 — Product integration:** upload flow, streaming progress, confidence-flagged review UI, source-region highlighting. (Amended 2026-08-06: comparison view moved to Phase 1.5.)
 
 **Phase 5 — Observability + hardening:** OTel, cost dashboard, dead-letter handling, rate limiting, document TTL deletion, public stats page.
 

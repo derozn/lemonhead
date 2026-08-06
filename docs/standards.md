@@ -1,6 +1,6 @@
 # Codebase standards
 
-The web-side conventions Phase 1 deferred, plus the documentation policy. Engine-side law lives in `docs/ai/rules.md` and CLAUDE.md; this file covers what lint can't fully own. Draft for owner review in the framework PR; amend freely.
+The web-side conventions Phase 1 deferred, plus the documentation policy. Engine-side law lives in `docs/ai/rules.md` and CLAUDE.md; this file covers what lint can't fully own. Adopted with the framework PR (#7); re-confirmed at the 2026-08-06 revisit. Amend freely.
 
 ## React and JSX
 
