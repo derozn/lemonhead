@@ -71,6 +71,12 @@ check "session-context runs" 0 $?
 bash tools/ai/stop-uncommitted.sh > /dev/null
 check "stop-uncommitted runs" 0 $?
 
+# --- repo invariant: generated next-env.d.ts must never be git-tracked ---
+# (tracked, it busts Turbo's input hash every dev/build alternation; see the
+# 2026-08-06 build-log entry)
+git ls-files | grep -q 'next-env\.d\.ts'
+check "next-env.d.ts stays untracked" 1 $?
+
 if [ "$fails" -gt 0 ]; then
   echo "$fails hook test(s) failed"
   exit 1
