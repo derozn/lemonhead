@@ -5,7 +5,7 @@ Conflict hierarchy: `docs/spec.md` > `CLAUDE.md` > `docs/standards.md` > anyone'
 ## 🔴 Money
 
 - ✅ `applyPercent(amount, 85)` in the engine. ❌ `month.total * 0.85` in a component, a script, or an agent's prose.
-- Detection: `grep -rnE "amountPence.*[*/]|[*/].*Pence" apps/ packages/ --include="*.ts*" | grep -v "packages/entitlements/src/money.ts"` (expect empty).
+- Detection: `grep -rnE "\w+Pence\w*\s*[*/]|[*/]\s*\w+Pence" apps/ packages/ --include="*.ts*" | grep -v "money.ts" | grep -v "\.test\."` — a name-based tripwire only; the gate is the type-aware ESLint no-Pence-arithmetic rule (Phase 1.5 money-boundary task, ADR 0008). As of 2026-08-06 this grep matches five known display-formatting sites (plus one it cannot see in `funding.ts`, whose variables lack the Pence suffix); expect empty once that task lands. The 2026-08 revisit replaced the original pattern here, which matched none of the real violations.
 
 ## 🔴 Citations for government figures
 

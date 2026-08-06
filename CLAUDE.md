@@ -22,7 +22,7 @@ The AI-dev framework: `docs/ai/framework.md` (architecture), `docs/ai/rules.md` 
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `packages/schemas`      | Zod schemas and inferred types only. Imports nothing from the workspace.                                                                                                              |
 | `packages/entitlements` | Pure calculation engine. Imports only `@lemonhead/schemas`. No IO, no clock (`Date.now`/`new Date()` banned), no randomness. Caller supplies `asOfDate`. 100% test coverage enforced. |
-| `apps/web` (task 10+)   | Next.js UI. Imports both packages.                                                                                                                                                    |
+| `apps/web`              | Next.js UI. Imports both packages.                                                                                                                                                    |
 
 Boundaries and purity are lint-enforced in `eslint.config.mjs`; do not weaken those rules to make code fit.
 
