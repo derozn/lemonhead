@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { penceToInputString, renderAmounts, toPence } from './format.ts';
+import { penceToInputString, poundsPerMonth, renderAmounts, toPence } from './format.ts';
 
 describe('renderAmounts', () => {
   it('renders a four-figure amount with Intl grouping', () => {
@@ -21,6 +21,21 @@ describe('renderAmounts', () => {
 
   it('returns the text unchanged when there is no amounts map', () => {
     expect(renderAmounts('up to {cap} a month')).toBe('up to {cap} a month');
+  });
+});
+
+describe('poundsPerMonth', () => {
+  it('divides an annual pence figure by 12 for display', () => {
+    expect(poundsPerMonth(90640)).toBe('£75.53');
+    expect(poundsPerMonth(120000)).toBe('£100.00');
+  });
+
+  it('rounds a half-penny average to the nearest penny', () => {
+    expect(poundsPerMonth(110574)).toBe('£92.15');
+  });
+
+  it('formats a zero annual total as £0.00', () => {
+    expect(poundsPerMonth(0)).toBe('£0.00');
   });
 });
 
