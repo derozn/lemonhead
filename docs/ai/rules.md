@@ -9,7 +9,7 @@ Conflict hierarchy: `docs/spec.md` > `CLAUDE.md` > `docs/standards.md` > anyone'
 
 ## 🔴 Citations for government figures
 
-- ✅ A dated params file with `{ url, quote, retrievedOn }` for every figure, created via /verify-rule. ❌ "The cap is £2,000" from memory, or editing an old params file in place.
+- ✅ A dated params file with `{ url, quote, retrievedOn }` for every figure, created via /verify-rule. ❌ "The cap is £2,000" from memory, or editing an old params file in place. One carve-out (owner verdict, 2026-08-06): citation-text-only corrections (quote wording, source URL, `retrievedOn`) may edit a params file in place, because a new dated file would fabricate a rule change; any change to a figure or `effectiveFrom` must still be a new dated file.
 - Detection: `grep -rL "retrievedOn" packages/entitlements/src/rules/*/params/` (expect empty).
 
 ## 🔴 Engine purity

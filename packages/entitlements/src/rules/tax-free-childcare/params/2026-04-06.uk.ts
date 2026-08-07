@@ -7,7 +7,11 @@ const p = (value: number) => NonNegativePence.parse(value);
 /**
  * Tax-Free Childcare parameters, current from 6 April 2026 (the NMW-linked
  * earnings thresholds moved that day; the top-up rate and caps are unchanged
- * since scheme launch). Verified against the cited sources on 2026-08-05.
+ * since scheme launch). Verified against the cited sources on 2026-08-05;
+ * quotes made verbatim and re-verified 2026-08-06. The earnings/income
+ * figures are cross-referenced from the funded-hours eligibility page by
+ * design (TFC and 30-hours share the qualifying-earnings rules); that page
+ * does not itself mention Tax-Free Childcare.
  */
 export const taxFreeChildcare2026April: TaxFreeChildcareParams = {
   effectiveFrom: isoDate('2026-04-06'),
@@ -25,19 +29,19 @@ export const taxFreeChildcare2026April: TaxFreeChildcareParams = {
     {
       url: 'https://www.gov.uk/tax-free-childcare',
       quote:
-        'For every £8 you pay into the account, the government will top it up by £2. £500 every 3 months (up to £2,000 a year); £1,000 every 3 months if your child is disabled (up to £4,000 a year). Your child must be 11 or younger (16 or younger if they’re disabled).',
-      retrievedOn: '2026-08-05',
+        "For every £8 you pay into the account, the government will top it up by £2. … The total top up you can get for each child is £500 every 3 months (up to £2,000 a year). … This goes up to £1,000 every 3 months if your child is disabled (up to £4,000 a year). … your child must be 11 or younger … (16 or younger if they're disabled)",
+      retrievedOn: '2026-08-06',
     },
     {
       url: 'https://www.gov.uk/guidance/universal-credit-childcare-costs',
       quote: 'You cannot get tax-free childcare if you are on Universal Credit.',
-      retrievedOn: '2026-08-05',
+      retrievedOn: '2026-08-06',
     },
     {
       url: 'https://www.gov.uk/free-childcare-if-working/check-youre-eligible',
       quote:
-        'Earnings and income tests match the free-childcare working-parent tests: £2,643.68 / £2,256.80 / £1,664 per quarter by age, and the £100,000 adjusted net income ceiling per parent.',
-      retrievedOn: '2026-08-05',
+        "Over 21 years £2,643.68 … 18 to 20 years £2,256.80 … Under 18 or an apprentice £1,664 … your or your partner's expected adjusted net income (including any foreign income) is over £100,000 for the current tax year",
+      retrievedOn: '2026-08-06',
     },
   ],
 };
