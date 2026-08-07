@@ -53,6 +53,14 @@ main {
   font-size: 0.9rem;
 }
 
+.hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+  margin: 0.1rem 0 0.6rem;
+  max-width: 36rem;
+}
+
 .card {
   background: var(--card);
   border: 1px solid var(--line);

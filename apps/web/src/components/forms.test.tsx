@@ -84,18 +84,25 @@ describe('FamilyForm', () => {
   it('reveals the memory-only UC figure fields only for claimants', async () => {
     render(<FamilyForm stored={null} onSave={vi.fn()} />);
     expect(screen.queryByText(/never leave your browser/)).not.toBeInTheDocument();
-    await userEvent.click(screen.getByLabelText(/receives Universal Credit/));
+    await userEvent.click(screen.getByLabelText(/gets Universal Credit/));
     expect(screen.getByText(/never leave your browser/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/net monthly earnings/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Take-home pay each month/)).toBeInTheDocument();
+  });
+
+  it('describes an input through its hint via aria-describedby', () => {
+    render(<FamilyForm stored={null} onSave={vi.fn()} />);
+    expect(screen.getByLabelText('Birth month')).toHaveAccessibleDescription(
+      'We only ever ask for the month and year, never the full date.',
+    );
   });
 
   it('submits a valid claimant household as a parsed FamilyProfile', async () => {
     const onSave = vi.fn<(profile: FamilyProfile) => void>();
     render(<FamilyForm stored={null} onSave={onSave} />);
     await userEvent.type(screen.getByLabelText('Birth month'), '2024-11');
-    await userEvent.click(screen.getByLabelText(/receives Universal Credit/));
-    await userEvent.type(screen.getByLabelText(/net monthly earnings/), '1450');
-    await userEvent.type(screen.getByLabelText(/Current monthly UC award/), '896');
+    await userEvent.click(screen.getByLabelText(/gets Universal Credit/));
+    await userEvent.type(screen.getByLabelText(/Take-home pay each month/), '1450');
+    await userEvent.type(screen.getByLabelText(/Monthly Universal Credit payment/), '896');
     await userEvent.click(screen.getByRole('button', { name: /See what/ }));
     expect(onSave).toHaveBeenCalledOnce();
     const profile = onSave.mock.calls[0]?.[0];
@@ -110,7 +117,7 @@ describe('FamilyForm', () => {
     const onSave = vi.fn();
     render(<FamilyForm stored={null} onSave={onSave} />);
     await userEvent.type(screen.getByLabelText('Birth month'), '2024-11');
-    await userEvent.click(screen.getByLabelText(/receives Universal Credit/));
+    await userEvent.click(screen.getByLabelText(/gets Universal Credit/));
     await userEvent.click(screen.getByRole('button', { name: /See what/ }));
     expect(onSave).not.toHaveBeenCalled();
     expect(screen.getAllByRole('listitem').length).toBeGreaterThan(0);

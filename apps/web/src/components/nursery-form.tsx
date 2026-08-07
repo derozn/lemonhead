@@ -1,7 +1,7 @@
 'use client';
 
 import { FeeSchedule } from '@lemonhead/schemas';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 import { penceToInputString, pounds, toPence } from '../lib/format.ts';
 import { nurseryNameTaken } from '../lib/storage.ts';
@@ -215,6 +215,7 @@ export function NurseryForm({
 }) {
   const [draft, setDraft] = useState<Draft>(() => draftFrom(initial));
   const [errors, setErrors] = useState<string[]>([]);
+  const hintId = useId();
 
   const set = (patch: Partial<Draft>) => {
     setDraft((current) => ({ ...current, ...patch }));
@@ -240,8 +241,9 @@ export function NurseryForm({
     <section className="card">
       <h2>Your nursery&apos;s price list</h2>
       <p className="note">
-        Enter the whole price list, band by band. Anything you honestly don&apos;t know can stay
-        blank or be marked unknown; the projection flags it instead of guessing.
+        Copy this from your nursery&apos;s price list, or ask the nursery for it. Leave anything you
+        don&apos;t know blank or tick &apos;I don&apos;t know&apos;. Your results will show
+        what&apos;s missing instead of guessing.
       </p>
 
       <fieldset>
@@ -256,22 +258,30 @@ export function NurseryForm({
           />
         </label>
         <label>
-          Postcode area (optional, e.g. SE15)
+          Postcode area (optional)
           <input
+            aria-describedby={`${hintId}-postcode`}
             value={draft.postcodeArea}
             onChange={(event) => {
               set({ postcodeArea: event.target.value });
             }}
           />
         </label>
+        <p className="hint" id={`${hintId}-postcode`}>
+          Just the first part, like SE15.
+        </p>
       </fieldset>
 
       <fieldset>
-        <legend>Age bands (months)</legend>
+        <legend>Age groups</legend>
+        <p className="hint">
+          Nurseries charge by age. Copy each age group from the price list, for example &apos;Under
+          2s&apos;.
+        </p>
         {draft.bands.map((band, index) => (
           <div key={band.id}>
             <label>
-              Label
+              Group name
               <input
                 value={band.label}
                 onChange={(event) => {
@@ -282,9 +292,10 @@ export function NurseryForm({
               />
             </label>
             <label>
-              From (months)
+              Starts at (months old)
               <input
                 type="number"
+                aria-describedby={`${hintId}-from-${band.id}`}
                 value={band.fromMonths}
                 onChange={(event) => {
                   const bands = [...draft.bands];
@@ -293,10 +304,14 @@ export function NurseryForm({
                 }}
               />
             </label>
+            <p className="hint" id={`${hintId}-from-${band.id}`}>
+              24 months is age 2. 36 months is age 3.
+            </p>
             <label>
-              Up to, exclusive (blank = open-ended)
+              Ends before (months old)
               <input
                 type="number"
+                aria-describedby={`${hintId}-to-${band.id}`}
                 value={band.toMonths}
                 onChange={(event) => {
                   const bands = [...draft.bands];
@@ -305,6 +320,10 @@ export function NurseryForm({
                 }}
               />
             </label>
+            <p className="hint" id={`${hintId}-to-${band.id}`}>
+              The month children move up to the next group. A group for under-2s ends before 24.
+              Leave blank for the oldest group.
+            </p>
           </div>
         ))}
         <button
@@ -329,12 +348,16 @@ export function NurseryForm({
       </fieldset>
 
       <fieldset>
-        <legend>Sessions</legend>
+        <legend>Session types</legend>
+        <p className="hint">
+          A session is a block of time you can book, like a full day or a morning.
+        </p>
         {draft.sessions.map((session, index) => (
           <div key={session.id}>
             <label>
-              Label
+              Session name
               <input
+                aria-describedby={`${hintId}-session-name-${session.id}`}
                 value={session.label}
                 onChange={(event) => {
                   const sessions = [...draft.sessions];
@@ -343,6 +366,9 @@ export function NurseryForm({
                 }}
               />
             </label>
+            <p className="hint" id={`${hintId}-session-name-${session.id}`}>
+              As the price list names it, for example &apos;Full day&apos;.
+            </p>
             <label>
               Kind
               <select
@@ -360,10 +386,11 @@ export function NurseryForm({
               </select>
             </label>
             <label>
-              Hours
+              How long (hours)
               <input
                 type="number"
                 step="0.25"
+                aria-describedby={`${hintId}-session-hours-${session.id}`}
                 value={session.hours}
                 onChange={(event) => {
                   const sessions = [...draft.sessions];
@@ -372,6 +399,10 @@ export function NurseryForm({
                 }}
               />
             </label>
+            <p className="hint" id={`${hintId}-session-hours-${session.id}`}>
+              A day from 8am to 6pm is 10 hours. For a weekly price, count the hours in the whole
+              week.
+            </p>
           </div>
         ))}
         <button
@@ -396,7 +427,11 @@ export function NurseryForm({
       </fieldset>
 
       <fieldset>
-        <legend>Prices (£ per session; leave blank if not offered)</legend>
+        <legend>Prices (£ for each session)</legend>
+        <p className="hint">
+          Copy each price from the list. Leave a box blank if that age group cannot book that
+          session.
+        </p>
         <table>
           <thead>
             <tr>
@@ -431,9 +466,13 @@ export function NurseryForm({
       </fieldset>
 
       <fieldset>
-        <legend>Funded hours policy</legend>
+        <legend>Government funded hours (free childcare)</legend>
+        <p className="hint">
+          Many children in England get funded childcare hours from the government. Nurseries apply
+          them in different ways, so check the price list or ask.
+        </p>
         <label>
-          How this nursery applies funded hours
+          How does this nursery apply funded hours?
           <select
             value={draft.policyKind}
             onChange={(event) => {
@@ -441,22 +480,32 @@ export function NurseryForm({
             }}
           >
             <option value="unknown">I don&apos;t know yet</option>
-            <option value="hours-deduction">Deducts funded hours at its normal rate</option>
-            <option value="funded-rate-deduction">Deducts at a lower funded rate</option>
-            <option value="sessions-allocated">Funds specific whole sessions</option>
-            <option value="not-offered">Does not offer funded places</option>
+            <option value="hours-deduction">
+              Takes the funded hours off the bill at its normal price
+            </option>
+            <option value="funded-rate-deduction">
+              Takes the funded hours off at a lower hourly rate
+            </option>
+            <option value="sessions-allocated">Gives set free sessions instead of money off</option>
+            <option value="not-offered">Does not take funded children</option>
           </select>
         </label>
         {draft.policyKind === 'funded-rate-deduction' && (
-          <label>
-            Funded rate (£ per hour)
-            <input
-              value={draft.fundedRate}
-              onChange={(event) => {
-                set({ fundedRate: event.target.value });
-              }}
-            />
-          </label>
+          <>
+            <label>
+              The lower rate (£ per hour)
+              <input
+                aria-describedby={`${hintId}-funded-rate`}
+                value={draft.fundedRate}
+                onChange={(event) => {
+                  set({ fundedRate: event.target.value });
+                }}
+              />
+            </label>
+            <p className="hint" id={`${hintId}-funded-rate`}>
+              The price list might call this the funded or grant rate.
+            </p>
+          </>
         )}
         {draft.policyKind === 'sessions-allocated' &&
           draft.sessions.map((session) => (
@@ -478,7 +527,7 @@ export function NurseryForm({
         {offersFunding && (
           <>
             <label>
-              Minimum days/week for funding (blank if none)
+              Minimum days a week to qualify (leave blank if none)
               <input
                 type="number"
                 value={draft.minDaysPerWeek}
@@ -488,7 +537,7 @@ export function NurseryForm({
               />
             </label>
             <label>
-              Maximum funded hours/week accepted (blank if all)
+              Most funded hours a week the nursery accepts (leave blank if it takes them all)
               <input
                 type="number"
                 step="0.25"
@@ -506,7 +555,7 @@ export function NurseryForm({
                   set({ termTimeOnly: event.target.checked });
                 }}
               />
-              Funding applies to term-time attendance only
+              Funded hours count in term time only here
             </label>
             <label className="inline">
               <input
@@ -516,17 +565,22 @@ export function NurseryForm({
                   set({ conditionsUnknown: event.target.checked });
                 }}
               />
-              I don&apos;t know this nursery&apos;s funding conditions
+              I don&apos;t know this nursery&apos;s funding rules
             </label>
             <label>
-              Consumables charge on funded sessions (£, blank if none)
+              Charge for meals and supplies on funded time (£, leave blank if none)
               <input
+                aria-describedby={`${hintId}-consumables`}
                 value={draft.consumablesAmount}
                 onChange={(event) => {
                   set({ consumablesAmount: event.target.value });
                 }}
               />
             </label>
+            <p className="hint" id={`${hintId}-consumables`}>
+              Many nurseries charge for lunch, nappies and trips during funded hours. Price lists
+              often call this a consumables charge.
+            </p>
             <label>
               Charged per
               <select
@@ -547,14 +601,18 @@ export function NurseryForm({
       <fieldset>
         <legend>Discounts and extras</legend>
         <label>
-          Sibling discount % (blank if none)
+          Sibling discount % (leave blank if none)
           <input
+            aria-describedby={`${hintId}-sibling`}
             value={draft.discountPercent}
             onChange={(event) => {
               set({ discountPercent: event.target.value });
             }}
           />
         </label>
+        <p className="hint" id={`${hintId}-sibling`}>
+          Money off when brothers or sisters attend at the same time.
+        </p>
         <label>
           Applies to
           <select
@@ -571,8 +629,9 @@ export function NurseryForm({
         {draft.extras.map((extra, index) => (
           <div key={index}>
             <label>
-              Extra
+              What it&apos;s called
               <input
+                aria-describedby={`${hintId}-extra-${String(index)}`}
                 value={extra.label}
                 onChange={(event) => {
                   const extras = [...draft.extras];
@@ -581,6 +640,9 @@ export function NurseryForm({
                 }}
               />
             </label>
+            <p className="hint" id={`${hintId}-extra-${String(index)}`}>
+              For example &apos;Registration fee&apos; or &apos;Lunch&apos;.
+            </p>
             <label>
               Amount (£)
               <input
@@ -620,7 +682,7 @@ export function NurseryForm({
                   set({ extras });
                 }}
               />
-              refundable
+              paid back later, like a deposit
             </label>
           </div>
         ))}
@@ -642,6 +704,7 @@ export function NurseryForm({
 
       <fieldset>
         <legend>Attendance patterns this nursery offers</legend>
+        <p className="hint">Tick everything the nursery offers.</p>
         {(['term-time-38', 'stretched-all-year'] as const).map((pattern) => (
           <label key={pattern} className="inline">
             <input
@@ -655,7 +718,7 @@ export function NurseryForm({
                 });
               }}
             />
-            {pattern === 'term-time-38' ? 'Term time (38 weeks)' : 'All year (stretched)'}
+            {pattern === 'term-time-38' ? 'School term weeks only (38 weeks)' : 'All year round'}
           </label>
         ))}
       </fieldset>
