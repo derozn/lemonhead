@@ -4,6 +4,7 @@ import { FeeSchedule } from '@lemonhead/schemas';
 import { useState } from 'react';
 
 import { penceToInputString, pounds, toPence } from '../lib/format.ts';
+import { nurseryNameTaken } from '../lib/storage.ts';
 
 interface BandDraft {
   id: string;
@@ -202,9 +203,14 @@ function assemble(draft: Draft): unknown {
 
 export function NurseryForm({
   initial,
+  currentName,
   onSave,
 }: {
   initial: FeeSchedule | null;
+  /** The saved name this form is editing, or null when adding a new nursery.
+   * Guards the saved list: a name that already belongs to a different
+   * nursery is rejected here, before it can overwrite that entry. */
+  currentName: string | null;
   onSave: (schedule: FeeSchedule) => void;
 }) {
   const [draft, setDraft] = useState<Draft>(() => draftFrom(initial));
@@ -217,12 +223,17 @@ export function NurseryForm({
 
   const submit = () => {
     const result = FeeSchedule.safeParse(assemble(draft));
-    if (result.success) {
-      setErrors([]);
-      onSave(result.data);
-    } else {
+    if (!result.success) {
       setErrors(result.error.issues.map((issue) => issue.message));
+      return;
     }
+    const name = result.data.nursery.name;
+    if (nurseryNameTaken(name, currentName ?? undefined)) {
+      setErrors([`A nursery called ${name} is already saved. Select it from the bar to edit it.`]);
+      return;
+    }
+    setErrors([]);
+    onSave(result.data);
   };
 
   return (

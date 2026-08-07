@@ -4,10 +4,20 @@ import { isoDate } from '@lemonhead/schemas';
 import type { FamilyProfile, FeeSchedule } from '@lemonhead/schemas';
 import { useState, useSyncExternalStore } from 'react';
 
+import { ComparisonView } from '../components/comparison-view.tsx';
 import { FamilyForm } from '../components/family-form.tsx';
 import { NurseryForm } from '../components/nursery-form.tsx';
+import { NurserySwitcher } from '../components/nursery-switcher.tsx';
 import { ProjectionView } from '../components/projection-view.tsx';
-import { loadFamily, loadNursery, saveFamily, saveNursery } from '../lib/storage.ts';
+import {
+  deleteNursery,
+  getActiveNurseryName,
+  listNurseries,
+  loadFamily,
+  saveFamily,
+  saveNursery,
+  setActiveNursery,
+} from '../lib/storage.ts';
 import type { StoredFamily } from '../lib/storage.ts';
 
 type Step = 'nursery' | 'family' | 'projection';
@@ -23,7 +33,9 @@ export default function Home() {
   );
   const [ready, setReady] = useState(false);
   const [step, setStep] = useState<Step>('nursery');
-  const [schedule, setSchedule] = useState<FeeSchedule | null>(null);
+  const [nurseries, setNurseries] = useState<FeeSchedule[]>([]);
+  const [activeName, setActiveName] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
   const [storedFamily, setStoredFamily] = useState<StoredFamily | null>(null);
   const [profile, setProfile] = useState<FamilyProfile | null>(null);
   const [asOfDate] = useState(() => isoDate(new Date().toISOString().slice(0, 10)));
@@ -32,14 +44,57 @@ export default function Home() {
   // set-state-in-effect): load persisted state once, after hydration.
   if (hydrated && !ready) {
     setReady(true);
-    setSchedule(loadNursery());
+    const list = listNurseries();
+    setNurseries(list);
+    const storedActive = getActiveNurseryName();
+    setActiveName(
+      list.some((entry) => entry.nursery.name === storedActive)
+        ? storedActive
+        : (list[0]?.nursery.name ?? null),
+    );
     setStoredFamily(loadFamily());
   }
 
   if (!ready) return null;
 
+  const active = nurseries.find((entry) => entry.nursery.name === activeName) ?? null;
+  const refresh = () => {
+    setNurseries(listNurseries());
+    setActiveName(getActiveNurseryName());
+  };
+
   return (
     <>
+      {nurseries.length > 0 && (
+        <NurserySwitcher
+          nurseries={nurseries}
+          activeName={activeName}
+          onSelect={(name) => {
+            setActiveNursery(name);
+            refresh();
+            setAdding(false);
+            if (profile) setStep('projection');
+          }}
+          onAdd={() => {
+            setAdding(true);
+            setStep('nursery');
+          }}
+          onEdit={() => {
+            setAdding(false);
+            setStep('nursery');
+          }}
+          onDelete={(name) => {
+            deleteNursery(name);
+            const remaining = listNurseries();
+            setNurseries(remaining);
+            setActiveName(getActiveNurseryName());
+            if (remaining.length === 0) {
+              setAdding(true);
+              setStep('nursery');
+            }
+          }}
+        />
+      )}
       {step !== 'nursery' && (
         <p>
           <button
@@ -55,11 +110,16 @@ export default function Home() {
       )}
       {step === 'nursery' && (
         <NurseryForm
-          initial={schedule}
+          key={adding ? 'new-nursery' : (activeName ?? 'new-nursery')}
+          initial={adding ? null : active}
+          currentName={adding ? null : activeName}
           onSave={(saved) => {
-            setSchedule(saved);
-            saveNursery(saved);
-            setStep('family');
+            // The form already refuses colliding names; this keeps the call
+            // site honest should a save ever be rejected anyway.
+            if (!saveNursery(saved, adding ? undefined : (activeName ?? undefined))) return;
+            refresh();
+            setAdding(false);
+            setStep(profile ? 'projection' : 'family');
           }}
         />
       )}
@@ -74,10 +134,15 @@ export default function Home() {
           }}
         />
       )}
-      {step === 'projection' && schedule && profile && (
-        <ProjectionView schedule={schedule} profile={profile} asOfDate={asOfDate} />
+      {step === 'projection' && active && profile && (
+        <>
+          <ProjectionView schedule={active} profile={profile} asOfDate={asOfDate} />
+          {nurseries.length >= 2 && (
+            <ComparisonView schedules={nurseries} profile={profile} asOfDate={asOfDate} />
+          )}
+        </>
       )}
-      {step === 'projection' && (!schedule || !profile) && (
+      {step === 'projection' && (!active || !profile) && (
         <p className="note">Enter a nursery and your family details first.</p>
       )}
     </>

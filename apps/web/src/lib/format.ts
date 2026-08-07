@@ -4,6 +4,15 @@ export function pounds(pence: number): string {
   return gbp.format(pence / 100);
 }
 
+/** Average month for display: an annual pence figure divided by 12, rounded
+ * to the nearest penny. Purely a display concern, which is why the division
+ * lives here: the engine emits annual and monthly totals, never averages,
+ * and pence scaling outside money.ts is banned everywhere but this file
+ * (ADR 0008). */
+export function poundsPerMonth(annualPence: number): string {
+  return pounds(Math.round(annualPence / 12));
+}
+
 /** Replace each `{key}` placeholder in engine copy with the pounds-formatted
  * amount from that line's raw pence map (ADR 0008). Unknown placeholders stay
  * as written, so a missing amount shows up in tests instead of vanishing. */

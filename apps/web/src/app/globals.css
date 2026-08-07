@@ -7,6 +7,8 @@
   --card: #ffffff;
   --page: #fbfaf4;
   --alert: #a05e03;
+  --error: #9d1c1c;
+  --ok-soft: #e8f4e2;
 }
 
 * {
@@ -133,7 +135,7 @@ th.amount {
 }
 
 .errors {
-  color: #9d1c1c;
+  color: var(--error);
   font-size: 0.9rem;
 }
 
@@ -166,7 +168,7 @@ th.amount {
 }
 
 .chip[data-status='eligible'] {
-  background: #e8f4e2;
+  background: var(--ok-soft);
 }
 
 .chip[data-status='ineligible'] {
@@ -180,4 +182,65 @@ th.amount {
 .total {
   font-size: 1.5rem;
   font-weight: 700;
+}
+
+button.danger {
+  background: var(--error);
+  color: var(--card);
+}
+
+.switcher-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  padding: 0;
+}
+
+.switcher-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.compare-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.compare-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.compare-card h3 {
+  margin: 0 0 0.5rem;
+}
+
+.compare-card dl {
+  margin: 0;
+}
+
+.compare-card dt {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.compare-card dd {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.lowest {
+  background: var(--ok-soft);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  margin-left: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
