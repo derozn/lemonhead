@@ -38,6 +38,29 @@ describe('Home nursery switching', () => {
     expect(screen.getByLabelText('Name')).toHaveValue('Sunny Bank Day Nursery');
   });
 
+  it('renders the comparison below the projection once two nurseries and a family exist', async () => {
+    saveNursery(perDayHoursDeduction);
+    saveNursery(fundedRateDeduction);
+    render(<Home />);
+    await userEvent.click(screen.getByRole('button', { name: 'Save nursery' }));
+    await userEvent.type(screen.getByLabelText('Birth month'), '2024-11');
+    await userEvent.click(screen.getByRole('button', { name: /See what/ }));
+    expect(screen.getByRole('heading', { name: /What you.ll pay at/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'How your nurseries compare' })).toBeInTheDocument();
+  });
+
+  it('shows no comparison while only one nursery is saved', async () => {
+    saveNursery(perDayHoursDeduction);
+    render(<Home />);
+    await userEvent.click(screen.getByRole('button', { name: 'Save nursery' }));
+    await userEvent.type(screen.getByLabelText('Birth month'), '2024-11');
+    await userEvent.click(screen.getByRole('button', { name: /See what/ }));
+    expect(screen.getByRole('heading', { name: /What you.ll pay at/ })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'How your nurseries compare' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('deletes a nursery through the two-step confirm and updates the store', async () => {
     saveNursery(perDayHoursDeduction);
     saveNursery(fundedRateDeduction);

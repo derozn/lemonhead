@@ -1,7 +1,7 @@
 'use client';
 
 import type { FeeSchedule } from '@lemonhead/schemas';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * The saved-nurseries bar: pick the active nursery, add another, edit or
@@ -24,6 +24,23 @@ export function NurserySwitcher({
   onDelete: (name: string) => void;
 }) {
   const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
+  const confirmButtonRef = useRef<HTMLButtonElement | null>(null);
+  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
+  const wasConfirming = useRef(false);
+
+  // Swapping "Delete" for the confirm pair unmounts the focused button,
+  // which would drop keyboard and screen-reader focus to the body. Keep
+  // focus on the flow instead: onto the confirm button on entering, back
+  // onto the delete button on leaving (docs/standards.md, keyboard rule).
+  useEffect(() => {
+    if (confirmingDelete !== null) {
+      wasConfirming.current = true;
+      confirmButtonRef.current?.focus();
+    } else if (wasConfirming.current) {
+      wasConfirming.current = false;
+      deleteButtonRef.current?.focus();
+    }
+  }, [confirmingDelete]);
 
   return (
     <nav aria-label="Saved nurseries" className="card">
@@ -55,6 +72,7 @@ export function NurserySwitcher({
                       <button
                         type="button"
                         className="danger"
+                        ref={confirmButtonRef}
                         onClick={() => {
                           setConfirmingDelete(null);
                           onDelete(name);
@@ -76,6 +94,7 @@ export function NurserySwitcher({
                     <button
                       type="button"
                       className="ghost"
+                      ref={deleteButtonRef}
                       onClick={() => {
                         setConfirmingDelete(name);
                       }}

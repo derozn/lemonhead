@@ -59,6 +59,18 @@ describe('NurserySwitcher', () => {
     expect(handlers.onDelete).toHaveBeenCalledWith('Sunny Bank Day Nursery');
   });
 
+  it('keeps keyboard focus on the flow through the two-step delete', async () => {
+    renderSwitcher();
+    await userEvent.click(screen.getByRole('button', { name: 'Delete Sunny Bank Day Nursery' }));
+    // The delete button unmounted; focus must land on the confirm button,
+    // not fall to the body.
+    expect(
+      screen.getByRole('button', { name: 'Yes, delete Sunny Bank Day Nursery' }),
+    ).toHaveFocus();
+    await userEvent.click(screen.getByRole('button', { name: 'Keep it' }));
+    expect(screen.getByRole('button', { name: 'Delete Sunny Bank Day Nursery' })).toHaveFocus();
+  });
+
   it('backs out of a delete without deleting', async () => {
     const handlers = renderSwitcher();
     await userEvent.click(screen.getByRole('button', { name: 'Delete Sunny Bank Day Nursery' }));

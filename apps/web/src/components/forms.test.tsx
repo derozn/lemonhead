@@ -2,21 +2,28 @@ import type { FamilyProfile, FeeSchedule } from '@lemonhead/schemas';
 import { isoDate } from '@lemonhead/schemas';
 import {
   familyOf,
+  fundedRateDeduction,
   perDayHoursDeduction,
   ucHouseholdTwoChildren,
 } from '@lemonhead/schemas/fixtures';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { clearAll, listNurseries, saveNursery } from '../lib/storage.ts';
 
 import { FamilyForm } from './family-form.tsx';
 import { NurseryForm } from './nursery-form.tsx';
 import { ProjectionView } from './projection-view.tsx';
 
 describe('NurseryForm', () => {
+  beforeEach(() => {
+    clearAll();
+  });
+
   it('round-trips a full fixture schedule through the form', async () => {
     const onSave = vi.fn<(schedule: FeeSchedule) => void>();
-    render(<NurseryForm initial={perDayHoursDeduction} onSave={onSave} />);
+    render(<NurseryForm initial={perDayHoursDeduction} currentName={null} onSave={onSave} />);
     await userEvent.click(screen.getByRole('button', { name: 'Save nursery' }));
     expect(onSave).toHaveBeenCalledOnce();
     expect(onSave.mock.calls[0]?.[0]).toEqual(perDayHoursDeduction);
@@ -24,11 +31,52 @@ describe('NurseryForm', () => {
 
   it('shows schema errors instead of saving invalid input', async () => {
     const onSave = vi.fn();
-    render(<NurseryForm initial={perDayHoursDeduction} onSave={onSave} />);
+    render(<NurseryForm initial={perDayHoursDeduction} currentName={null} onSave={onSave} />);
     await userEvent.clear(screen.getByLabelText('Name'));
     await userEvent.click(screen.getByRole('button', { name: 'Save nursery' }));
     expect(onSave).not.toHaveBeenCalled();
     expect(screen.getByText('The nursery needs a name')).toBeInTheDocument();
+  });
+
+  it('refuses to add a nursery whose name is already saved, without overwriting', async () => {
+    saveNursery(perDayHoursDeduction);
+    const onSave = vi.fn();
+    // Add mode (currentName null) with a draft carrying the saved name.
+    render(<NurseryForm initial={perDayHoursDeduction} currentName={null} onSave={onSave} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Save nursery' }));
+    expect(onSave).not.toHaveBeenCalled();
+    expect(
+      screen.getByText(
+        'A nursery called Sunny Bank Day Nursery is already saved. Select it from the bar to edit it.',
+      ),
+    ).toBeInTheDocument();
+    expect(listNurseries()).toEqual([perDayHoursDeduction]);
+  });
+
+  it('refuses a rename onto another saved nursery, but allows keeping your own name', async () => {
+    saveNursery(perDayHoursDeduction);
+    saveNursery(fundedRateDeduction);
+    const onSave = vi.fn<(schedule: FeeSchedule) => void>();
+    render(
+      <NurseryForm
+        initial={perDayHoursDeduction}
+        currentName={perDayHoursDeduction.nursery.name}
+        onSave={onSave}
+      />,
+    );
+    // Keeping the current name is not a collision.
+    await userEvent.click(screen.getByRole('button', { name: 'Save nursery' }));
+    expect(onSave).toHaveBeenCalledOnce();
+    // Renaming onto the other saved nursery is.
+    await userEvent.clear(screen.getByLabelText('Name'));
+    await userEvent.type(screen.getByLabelText('Name'), fundedRateDeduction.nursery.name);
+    await userEvent.click(screen.getByRole('button', { name: 'Save nursery' }));
+    expect(onSave).toHaveBeenCalledOnce();
+    expect(
+      screen.getByText(
+        'A nursery called The Orchard Nursery School is already saved. Select it from the bar to edit it.',
+      ),
+    ).toBeInTheDocument();
   });
 });
 

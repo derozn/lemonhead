@@ -112,8 +112,11 @@ export default function Home() {
         <NurseryForm
           key={adding ? 'new-nursery' : (activeName ?? 'new-nursery')}
           initial={adding ? null : active}
+          currentName={adding ? null : activeName}
           onSave={(saved) => {
-            saveNursery(saved, adding ? undefined : (activeName ?? undefined));
+            // The form already refuses colliding names; this keeps the call
+            // site honest should a save ever be rejected anyway.
+            if (!saveNursery(saved, adding ? undefined : (activeName ?? undefined))) return;
             refresh();
             setAdding(false);
             setStep(profile ? 'projection' : 'family');
